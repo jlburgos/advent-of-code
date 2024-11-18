@@ -1,2 +1,5 @@
 # Ignore all executables
 **/*.exe
+
+## Ignore dat files containing puzzle input
+**/*.dat
