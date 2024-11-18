@@ -20,7 +20,6 @@ void part1(const std::string_view input) {
   for (uint32_t i = 0; i < input.size(); ++i) {
     input[i] == '(' ? ++floor : --floor;
   }
-
   std::cout << "Current Floor: " << floor << std::endl;
 }
 
