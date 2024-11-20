@@ -3,7 +3,9 @@ FLAGS=-Wall -Werror -pedantic -std=c++20 -g -O0
 
 ## Show help.
 help:
-	@echo "Usage:\n\tCompile Challenge:\tmake <source_file_without_cpp>\n\tRun Tests:\t\tmake test"
+	@echo "Usage:"
+	@echo "\tCompile Challenge:\tmake <source_file_without_cpp>"
+	@echo "\tRun Tests:\t\tmake test"
 
 ## Run unit tests as needed!
 test:
