@@ -12,15 +12,15 @@ test:
 	@echo "--------------------------------------------"
 	@echo "Compiling and running test files ..."
 	@echo "--------------------------------------------"
-	g++ -DUNIT_TEST=true $(FLAGS) util.cpp -o util.exe && ./util.exe
+	g++ -DUNIT_TEST=true $(FLAGS) libs/util.cpp -o util.exe && ./util.exe
 
 ## Generic rule to handle cpp file targets.
 ## Example: `make day1`
 %: %.cpp test
-	@echo "--------------------------------------------"
-	@echo "Compiling '$(@).exe' ..."
-	@echo "--------------------------------------------"
-	g++ $(FLAGS) $(<) util.cpp -o $(@).exe
+	@echo "---------------------------------------------"
+	@echo "Compiling and attempting run of'$(@).exe' ..."
+	@echo "---------------------------------------------"
+	g++ $(FLAGS) $(<) libs/util.cpp -o $(@).exe && ./$(@).exe
 
 ## Since I'm adding the ".exe" extension, cleaning up is simple.
 clean:

@@ -14,10 +14,14 @@ static bool isEmptyInput(const std::string_view input) {
       });
 }
 
-std::vector<char> Util::getSingleLineInput(const std::string_view filename) {
+static void redirectStdin(const std::string_view filename) {
   std::cin.clear();
   std::fseek(stdin, 0, SEEK_SET);
   freopen(filename.data(), "r", stdin);
+}
+
+std::vector<char> Util::getSingleLineInput(const std::string_view filename) {
+  redirectStdin(filename);
   std::vector<char> input;
   char ch;
   while (std::cin.get(ch)) {
@@ -29,9 +33,7 @@ std::vector<char> Util::getSingleLineInput(const std::string_view filename) {
 }
 
 std::vector<std::string> Util::getMultiLineInput(const std::string_view filename) {
-  std::cin.clear();
-  std::fseek(stdin, 0, SEEK_SET);
-  freopen(filename.data(), "r", stdin);
+  redirectStdin(filename);
   std::vector<std::string> input;
   std::string line;
   while (std::getline(std::cin, line)) {
@@ -49,12 +51,12 @@ std::vector<std::string> Util::getMultiLineInput(const std::string_view filename
 int main() {
   std::cerr << "Running unit-tests ..." << std::endl;
 
-  std::vector<char> line = Util::getSingleLineInput("util.dat");
+  std::vector<char> line = Util::getSingleLineInput("libs/input/util.dat");
   std::string lineStr(line.begin(), line.end());
   std::cerr << "lineStr = " << lineStr << std::endl;
   assert(lineStr == "HelloWorld!!!Thereisatabhere");
 
-  std::vector<std::string> lines = Util::getMultiLineInput("util.dat");
+  std::vector<std::string> lines = Util::getMultiLineInput("libs/input/util.dat");
   std::cerr << "Lines size: " << lines.size() << std::endl;
   for (unsigned int i = 0; i < lines.size(); ++i) {
     std::cerr << "Lines[" << i << "] = " << lines[i] << std::endl;
