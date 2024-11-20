@@ -8,8 +8,7 @@ void part1(const std::string_view input);
 void part2(const std::string_view input);
 
 int main() {
-  freopen("day1.dat", "r", stdin);
-  const std::vector<char> input = Util::getSingleLineInput();
+  const std::vector<char> input = Util::getSingleLineInput("day1.dat");
   const std::string args(input.begin(), input.end());
   part1(args);
   part2(args);

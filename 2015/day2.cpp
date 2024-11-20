@@ -12,8 +12,7 @@ void part1(std::vector<std::string> input);
 void part2(std::vector<std::string> input);
 
 int main() {
-  freopen("day2.dat", "r", stdin);
-  const std::vector<std::string> input = Util::getMultiLineInput();
+  const std::vector<std::string> input = Util::getMultiLineInput("day2.dat");
   part1(input);
   return 0;
 }
