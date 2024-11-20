@@ -1,4 +1,3 @@
-#include <cstdint>
 #include <cstdio>
 #include <iostream>
 #include <string>
@@ -18,16 +17,16 @@ int main() {
 }
 
 void part1(const std::string_view input) {
-  int32_t floor = 0;
-  for (uint32_t i = 0; i < input.size(); ++i) {
+  int floor = 0;
+  for (unsigned int i = 0; i < input.size(); ++i) {
     input[i] == '(' ? ++floor : --floor;
   }
   std::cout << "Current Floor: " << floor << std::endl;
 }
 
 void part2(const std::string_view input) {
-  int32_t floor = 0;
-  for (uint32_t i = 0; i < input.size(); ++i) {
+  int floor = 0;
+  for (unsigned int i = 0; i < input.size(); ++i) {
     input[i] == '(' ? ++floor : --floor;
     if (floor < 0) {
       std::cout << "Character at position " << i + 1 << " caused Santa to enter the basement." << std::endl;

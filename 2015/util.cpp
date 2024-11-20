@@ -2,7 +2,6 @@
 
 #include <array>
 #include <algorithm>
-#include <cstdint>
 #include <iostream>
 #include <fstream>
 
@@ -58,7 +57,7 @@ int main() {
 
   std::vector<std::string> lines = Util::getMultiLineInput();
   std::cerr << "Lines size: " << lines.size() << std::endl;
-  for (uint64_t i = 0; i < lines.size(); ++i) {
+  for (unsigned int i = 0; i < lines.size(); ++i) {
     std::cerr << "Lines[" << i << "] = " << lines[i] << std::endl;
   }
   assert(lines.size() == 3);
