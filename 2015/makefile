@@ -10,7 +10,7 @@ help:
 ## Run unit tests as needed!
 test:
 	@echo "--------------------------------------------"
-	@echo "Compiling test files ..."
+	@echo "Compiling and running test files ..."
 	@echo "--------------------------------------------"
 	g++ -DUNIT_TEST=true $(FLAGS) util.cpp -o util.exe && ./util.exe
 
