@@ -18,17 +18,13 @@ int main() {
 }
 
 void part1(const std::vector<std::string> input) {
-  const auto find_x = [](std::string_view s, std::size_t old_pos = 0) -> std::size_t {
-    return s.find('x', old_pos);
-  };
-
   long square_feet = 0L;
 
   for (const std::string_view line : input) {
     std::array<unsigned int, 3> s3 = {0, 0, 0};
-    const std::size_t pos1 = find_x(line);
-    const std::size_t pos2 = find_x(line, pos1 + 1);
-    const std::size_t pos3 = find_x(line, pos2 + 1);
+    const std::size_t pos1 = line.find('x', 0);
+    const std::size_t pos2 = line.find('x', pos1 + 1);
+    const std::size_t pos3 = line.find('x', pos2 + 1);
     const unsigned int v1 = strtol(line.substr(0, pos1).data(), nullptr, 10);
     const unsigned int v2 = strtol(line.substr(pos1+1, pos2).data(), nullptr, 10);
     const unsigned int v3 = strtol(line.substr(pos2+1, pos3).data(), nullptr, 10);
