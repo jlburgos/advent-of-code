@@ -4,7 +4,6 @@
 #include <iostream>
 #include <numeric>
 #include <string>
-#include <sstream>
 #include <vector>
 
 #include "util.hpp"
