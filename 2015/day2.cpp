@@ -24,8 +24,8 @@ void part1(const std::vector<std::string> input) {
   for (const std::string_view line : input) {
     std::array<U64, 3> s3 = {0uL, 0uL, 0uL};
     const std::size_t pos1 = line.find('x', 0);
-    const std::size_t pos2 = line.find('x', pos1 + 1);
-    const std::size_t pos3 = line.find('x', pos2 + 1);
+    const std::size_t pos2 = line.find('x', pos1+1);
+    const std::size_t pos3 = line.find('x', pos2+1);
     const U64 v1 = static_cast<U64>(strtol(line.substr(0, pos1).data(), nullptr, 10));
     const U64 v2 = static_cast<U64>(strtol(line.substr(pos1+1, pos2).data(), nullptr, 10));
     const U64 v3 = static_cast<U64>(strtol(line.substr(pos2+1, pos3).data(), nullptr, 10));
