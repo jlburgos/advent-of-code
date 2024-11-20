@@ -3,3 +3,6 @@
 
 ## Ignore dat files containing puzzle input
 **/*.dat
+
+## Ignore vscode stuff
+*.code-workspace
