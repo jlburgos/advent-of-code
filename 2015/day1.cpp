@@ -1,5 +1,6 @@
 #include <iostream>
 #include <cstdint>
+#include <cstdio>
 #include <string>
 
 #include "util.hpp"
