@@ -37,7 +37,7 @@ void part1(const std::vector<char>& input) {
 
   // sort vector, move duplicates to end of vector, remove duplicates
   std::sort(houses.begin(), houses.end());
-  auto beginning_of_dupes = std::unique(houses.begin(), houses.end());
+  const auto beginning_of_dupes = std::unique(houses.begin(), houses.end());
   houses.erase(beginning_of_dupes, houses.end());
 
   std::cout << "Number of visited houses: " << houses.size() << std::endl;
@@ -74,7 +74,7 @@ void part2(const std::vector<char>& input) {
 
   // sort vector, move duplicates to end of vector, remove duplicates
   std::sort(houses.begin(), houses.end());
-  auto beginning_of_dupes = std::unique(houses.begin(), houses.end());
+  const auto beginning_of_dupes = std::unique(houses.begin(), houses.end());
   houses.erase(beginning_of_dupes, houses.end());
 
   std::cout << "Number of visited houses next year: " << houses.size() << std::endl;
