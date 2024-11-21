@@ -43,7 +43,7 @@ void part1(const std::vector<std::string> input) {
   std::cout << "Elves will need '" << square_feet << "' square feet of paper." << std::endl;
 }
 
-void part2(std::vector<std::string> input) {
+void part2(const std::vector<std::string> input) {
   U64 feet = 0;
   for (const std::string_view line : input) {
     std::array<U32, 3> s3 = {0, 0, 0};
