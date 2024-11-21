@@ -12,7 +12,7 @@ test:
 	@echo "--------------------------------------------"
 	@echo "Compiling and running test files ..."
 	@echo "--------------------------------------------"
-	g++ -DUNIT_TEST=true $(FLAGS) libs/util.cpp -o util.exe && ./util.exe
+	g++ -DUTIL_UNIT_TEST=true $(FLAGS) libs/util.cpp -o util.exe && ./util.exe
 
 ## Generic rule to handle cpp file targets.
 ## Example: `make day1`

@@ -1,7 +1,8 @@
 #include "util.hpp"
 
-#include <array>
 #include <algorithm>
+#include <array>
+#include <cassert>
 #include <iostream>
 #include <fstream>
 
@@ -14,24 +15,18 @@ static bool isEmptyInput(const std::string_view input) {
       });
 }
 
-static void openStdinStream(const std::string_view filename) {
+static void reloadStdinStream(const std::string_view filename) {
   std::cin.clear();
   std::fseek(stdin, 0, SEEK_SET);
-  if (freopen(filename.data(), "r", stdin) == nullptr) {
-    std::cerr << "Failed to open stdin stream!" << std::endl;
-    std::exit(1);
-  }
+  assert(freopen(filename.data(), "r", stdin) != nullptr);
 }
 
 static void closeStdinStream() {
-  if (fclose(stdin) != 0) {
-    std::cerr << "Failed to close stdin stream!" << std::endl;
-    std::exit(1);
-  }
+  assert(fclose(stdin) == 0);
 }
 
 std::vector<char> Util::getSingleLineInput(const std::string_view filename) {
-  openStdinStream(filename);
+  reloadStdinStream(filename);
   std::vector<char> input;
   char ch;
   while (std::cin.get(ch)) {
@@ -44,7 +39,7 @@ std::vector<char> Util::getSingleLineInput(const std::string_view filename) {
 }
 
 std::vector<std::string> Util::getMultiLineInput(const std::string_view filename) {
-  openStdinStream(filename);
+  reloadStdinStream(filename);
   std::vector<std::string> input;
   std::string line;
   while (std::getline(std::cin, line)) {
@@ -56,9 +51,7 @@ std::vector<std::string> Util::getMultiLineInput(const std::string_view filename
   return input;
 }
 
-#if UNIT_TEST == true
-#include <cassert>
-#include <cstdio>
+#if UTIL_UNIT_TEST == true
 int main() {
   std::cerr << "Running unit-tests ..." << std::endl;
 
