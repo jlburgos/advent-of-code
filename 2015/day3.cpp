@@ -17,10 +17,11 @@ int main() {
 }
 
 void part1(const std::vector<char>& input) {
-  std::vector<std::array<I32, 2>> houses({{{0,0}}});
+  std::vector<std::array<I32, 2>> houses;
   houses.reserve(input.size());
 
   std::array<I32, 2> pos = {0,0};
+  houses.push_back(pos); // initial house
 
   for (U32 i = 0; i < input.size(); ++i) {
     std::array<I32, 2> move;
@@ -44,11 +45,12 @@ void part1(const std::vector<char>& input) {
 }
 
 void part2(const std::vector<char>& input) {
-  std::vector<std::array<I32, 2>> houses({{{0,0}}});
+  std::vector<std::array<I32, 2>> houses;
   houses.reserve(input.size());
 
   std::array<I32, 2> santa = {0,0};
   std::array<I32, 2> robot = {0,0};
+  houses.push_back(santa); // initial house
 
   bool move_santa = true;
   for (U32 i = 0; i < input.size(); ++i) {
