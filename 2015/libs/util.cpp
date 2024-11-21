@@ -14,14 +14,24 @@ static bool isEmptyInput(const std::string_view input) {
       });
 }
 
-static void redirectStdin(const std::string_view filename) {
+static void openStdinStream(const std::string_view filename) {
   std::cin.clear();
   std::fseek(stdin, 0, SEEK_SET);
-  freopen(filename.data(), "r", stdin);
+  if (freopen(filename.data(), "r", stdin) == nullptr) {
+    std::cerr << "Failed to open stdin stream!" << std::endl;
+    std::exit(1);
+  }
+}
+
+static void closeStdinStream() {
+  if (fclose(stdin) != 0) {
+    std::cerr << "Failed to close stdin stream!" << std::endl;
+    std::exit(1);
+  }
 }
 
 std::vector<char> Util::getSingleLineInput(const std::string_view filename) {
-  redirectStdin(filename);
+  openStdinStream(filename);
   std::vector<char> input;
   char ch;
   while (std::cin.get(ch)) {
@@ -29,11 +39,12 @@ std::vector<char> Util::getSingleLineInput(const std::string_view filename) {
       input.push_back(ch);
     }
   }
+  closeStdinStream();
   return input;
 }
 
 std::vector<std::string> Util::getMultiLineInput(const std::string_view filename) {
-  redirectStdin(filename);
+  openStdinStream(filename);
   std::vector<std::string> input;
   std::string line;
   while (std::getline(std::cin, line)) {
@@ -41,7 +52,7 @@ std::vector<std::string> Util::getMultiLineInput(const std::string_view filename
       input.push_back(line);
     }
   }
-
+  closeStdinStream();
   return input;
 }
 
