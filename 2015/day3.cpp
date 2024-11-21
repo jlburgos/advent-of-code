@@ -6,8 +6,8 @@
 #include "libs/numeric-types.hpp"
 #include "libs/util.hpp"
 
-void part1(const std::vector<char> input);
-void part2(const std::vector<char> input);
+void part1(const std::vector<char>& input);
+void part2(const std::vector<char>& input);
 
 int main() {
   const std::vector<char> input = Util::getSingleLineInput("input/day3.dat");
@@ -16,7 +16,7 @@ int main() {
   return 0;
 }
 
-void part1(const std::vector<char> input) {
+void part1(const std::vector<char>& input) {
   std::vector<std::array<I32, 2>> houses({{{0,0}}});
   houses.reserve(input.size());
 
@@ -43,7 +43,7 @@ void part1(const std::vector<char> input) {
   std::cout << "Number of visited houses: " << houses.size() << std::endl;
 }
 
-void part2(const std::vector<char> input) {
+void part2(const std::vector<char>& input) {
   std::vector<std::array<I32, 2>> houses({{{0,0}}});
   houses.reserve(input.size());
 

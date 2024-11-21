@@ -8,8 +8,8 @@
 #include "libs/numeric-types.hpp"
 #include "libs/util.hpp"
 
-void part1(const std::vector<std::string> input);
-void part2(const std::vector<std::string> input);
+void part1(const std::vector<std::string>& input);
+void part2(const std::vector<std::string>& input);
 
 int main() {
   const std::vector<std::string> input = Util::getMultiLineInput("input/day2.dat");
@@ -18,7 +18,7 @@ int main() {
   return 0;
 }
 
-void part1(const std::vector<std::string> input) {
+void part1(const std::vector<std::string>& input) {
   U64 square_feet = 0;
   for (const std::string_view line : input) {
     std::array<U32, 3> s3 = {0, 0, 0};
@@ -43,7 +43,7 @@ void part1(const std::vector<std::string> input) {
   std::cout << "Elves will need '" << square_feet << "' square feet of paper." << std::endl;
 }
 
-void part2(const std::vector<std::string> input) {
+void part2(const std::vector<std::string>& input) {
   U64 feet = 0;
   for (const std::string_view line : input) {
     std::array<U32, 3> s3 = {0, 0, 0};
