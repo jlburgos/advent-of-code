@@ -17,9 +17,9 @@ test:
 ## Generic rule to handle cpp file targets.
 ## Example: `make day1`
 %: %.cpp test
-	@echo "---------------------------------------------"
-	@echo "Compiling and attempting run of'$(@).exe' ..."
-	@echo "---------------------------------------------"
+	@echo "----------------------------------------------"
+	@echo "Compiling and attempting run of '$(@).exe' ..."
+	@echo "----------------------------------------------"
 	g++ $(FLAGS) $(<) libs/util.cpp -o $(@).exe && ./$(@).exe
 
 ## Since I'm adding the ".exe" extension, cleaning up is simple.
