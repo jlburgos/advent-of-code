@@ -40,6 +40,10 @@ void part1(const std::vector<char>& input) {
       case '>': {move = {1,0}; break;}
       case 'v': {move = {0,-1}; break;}
       case '<': {move = {-1,0}; break;}
+      default: {
+        std::cerr << "Ignoring unknown input '" << input[i] << "'" << std::endl;
+        continue;
+        }
     }
     pos[0] += move[0];
     pos[1] += move[1];
@@ -70,6 +74,10 @@ void part2(const std::vector<char>& input) {
       case '>': {move = {1,0}; break;}
       case 'v': {move = {0,-1}; break;}
       case '<': {move = {-1,0}; break;}
+      default: {
+        std::cerr << "Ignoring unknown input '" << input[i] << "'" << std::endl;
+        continue;
+        }
     }
 
     if (move_santa) {
@@ -114,6 +122,10 @@ void part2_map(const std::vector<char>& input) {
       case '>': {move = {1,0}; break;}
       case 'v': {move = {0,-1}; break;}
       case '<': {move = {-1,0}; break;}
+      default: {
+        std::cerr << "Ignoring unknown input '" << input[i] << "'" << std::endl;
+        continue;
+        }
     }
 
     if (move_santa) {
@@ -153,6 +165,10 @@ void part2_set(const std::vector<char>& input) {
       case '>': {move = {1,0}; break;}
       case 'v': {move = {0,-1}; break;}
       case '<': {move = {-1,0}; break;}
+      default: {
+        std::cerr << "Ignoring unknown input '" << input[i] << "'" << std::endl;
+        continue;
+        }
     }
 
     if (move_santa) {
