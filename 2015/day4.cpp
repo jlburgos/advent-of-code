@@ -18,7 +18,7 @@ void part2(const std::string_view key);
 
 std::string toHex(const UCHAR ch);
 std::string toMd5(const std::string_view key);
-void compute_md5_suffice(const std::string_view key, const U8 prefix_zeroes);
+void compute_md5_suffix(const std::string_view key, const U8 prefix_zeroes);
 
 int main() {
   const std::vector<char> input = Util::getSingleLineInput("input/day4.dat");
@@ -30,15 +30,15 @@ int main() {
 
 void part1(const std::string_view key) {
   std::cout << "Solving part 1 ... " << std::flush;
-  compute_md5_suffice(key, 5);
+  compute_md5_suffix(key, 5);
 }
 
 void part2(const std::string_view key) {
   std::cout << "Solving part 2 ... " << std::flush;
-  compute_md5_suffice(key, 6);
+  compute_md5_suffix(key, 6);
 }
 
-void compute_md5_suffice(const std::string_view key, const U8 prefix_zeroes) {
+void compute_md5_suffix(const std::string_view key, const U8 prefix_zeroes) {
   const std::string prefix(prefix_zeroes, '0');
   std::string md5_str;
   std::ostringstream oss;
