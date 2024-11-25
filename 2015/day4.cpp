@@ -62,7 +62,6 @@ std::string toHex(const UCHAR ch) {
 
 std::string toMd5(const std::string_view key) {
   static std::array<UCHAR, EVP_MAX_MD_SIZE> digest;
-  std::fill(digest.begin(), digest.end(), '\0');
   U32 length;
 
   // Documentation: https://docs.openssl.org/3.0/man3
@@ -77,6 +76,5 @@ std::string toMd5(const std::string_view key) {
   for (U8 i = 0; i < length; ++i) {
     md5_str += toHex(digest[i]);
   }
-  const std::size_t end = md5_str.find_last_not_of('0');
-  return md5_str.substr(0, end + 1);
+  return md5_str;
 }
