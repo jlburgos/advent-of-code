@@ -3,6 +3,9 @@
 
 #include <cstdint>
 
+// Special case for unsigned 8-bit values
+using UCHAR = unsigned char;
+
 using U8 = std::uint8_t;
 using I8 = std::int8_t;
 
