@@ -14,6 +14,7 @@
 void part1(const std::string_view key);
 void part2(const std::string_view key);
 
+// Note: unsigned char (UCHAR) important in bitwise ops and crypto funcs
 std::string toHex(const UCHAR ch);
 std::string toMd5(const std::string_view key, EVP_MD_CTX *context);
 void compute_md5_suffix(const std::string_view key, const U8 prefix_zeroes);
