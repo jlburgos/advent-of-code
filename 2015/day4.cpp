@@ -72,7 +72,7 @@ std::string toMd5(const std::string_view key) {
   EVP_MD_CTX_free(context);
 
   std::string md5_str;
-  md5_str.reserve(2 * length); // each char converted to 2-byte hexadecimal representation
+  md5_str.reserve(2 * length); // each 1-byte char converted to 2-byte hexadecimal representation
   for (U8 i = 0; i < length; ++i) {
     md5_str += toHex(digest[i]);
   }
