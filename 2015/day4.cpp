@@ -1,5 +1,4 @@
 #include <algorithm>
-#include <array>
 #include <iostream>
 #include <sstream>
 #include <string>
@@ -38,16 +37,15 @@ void part2(const std::string_view key) {
 }
 
 void compute_md5_suffix(const std::string_view key, const U8 prefix_zeroes) {
-  const std::string prefix(prefix_zeroes, '0');
-  std::string md5_str;
-  std::ostringstream oss;
-
   EVP_MD_CTX *context = EVP_MD_CTX_new();
   if (context == nullptr) {
     std::cerr << "Failed to create message digest context!" << std::endl;
     exit(1);
   }
 
+  const std::string prefix(prefix_zeroes, '0');
+  std::string md5_str;
+  std::ostringstream oss;
   U64 i = -1; // underflowing so first iteration uses suffix i==0
   while (md5_str.substr(0, prefix_zeroes) != prefix) {
     oss.str("");
@@ -60,7 +58,7 @@ void compute_md5_suffix(const std::string_view key, const U8 prefix_zeroes) {
 }
 
 std::string toHex(const UCHAR ch) {
-  static const UCHAR index[] = "0123456789ABCDEF";
+  static const char index[] = "0123456789ABCDEF";
   std::string hex;
   hex.reserve(2);
   hex += index[ch >> 4]; // upper nibble
@@ -69,7 +67,7 @@ std::string toHex(const UCHAR ch) {
 }
 
 std::string toMd5(const std::string_view key, EVP_MD_CTX *context) {
-  static std::array<UCHAR, EVP_MAX_MD_SIZE> digest;
+  static UCHAR digest[EVP_MAX_MD_SIZE];
   U32 length;
 
   if (1 != EVP_DigestInit_ex(context, EVP_md5(), nullptr)) {
@@ -80,7 +78,7 @@ std::string toMd5(const std::string_view key, EVP_MD_CTX *context) {
     std::cerr << "Failed to provide key '" << key << "' whose digest needs to be calculated" << std::endl;
     exit(1);
   }
-  if (1 != EVP_DigestFinal_ex(context, digest.data(), &length)) {
+  if (1 != EVP_DigestFinal_ex(context, digest, &length)) {
     std::cerr << "Failed to calculate the digest for key '" << key << "'" << std::endl;
     exit(1);
   }
