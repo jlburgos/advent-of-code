@@ -6,13 +6,11 @@
 #include <iostream>
 #include <fstream>
 
-static bool isEmptyInput(const std::string_view input) {
+static bool isEmptyInput(const char ch) {
   const std::array<char, 4> illegalChars = {' ', '\n', '\r', '\t'};
-  return input.empty() || std::any_of(input.begin(), input.end(), [illegalChars](const char inputChar) {
-      return std::any_of(illegalChars.begin(), illegalChars.end(), [inputChar](const char illegalCharsChar) { 
-          return inputChar == illegalCharsChar;
-          });
-      });
+  return std::any_of(illegalChars.begin(), illegalChars.end(), [ch](const char illegalCharsChar) {
+    return ch == illegalCharsChar;
+  });
 }
 
 static void reloadStdinStream(const std::string_view filename) {
@@ -30,7 +28,7 @@ std::vector<char> Util::getSingleLineInput(const std::string_view filename) {
   std::vector<char> input;
   char ch;
   while (std::cin.get(ch)) {
-    if (!isEmptyInput(std::string_view(&ch, 1))) {
+    if (!isEmptyInput(ch)) {
       input.push_back(ch);
     }
   }
@@ -43,7 +41,7 @@ std::vector<std::string> Util::getMultiLineInput(const std::string_view filename
   std::vector<std::string> input;
   std::string line;
   while (std::getline(std::cin, line)) {
-    if (!isEmptyInput(line)) {
+    if (!line.empty()) {
       input.push_back(line);
     }
   }
