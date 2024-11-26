@@ -75,7 +75,7 @@ std::array<U16, 2> parseCoordinates(const std::string_view str) {
 }
 
 std::vector<LightInstruction> parseInput(const std::vector<std::string> &input) {
-  const std::string cmds[3] = {"toggle", "turn on", "turn off"};
+  const std::string keywords[4] = {"toggle", "turn on", "turn off", "through"};
   const std::string digits = "0123456789";
 
   Cmd cmd;
@@ -86,11 +86,11 @@ std::vector<LightInstruction> parseInput(const std::vector<std::string> &input) 
   instructions.reserve(input.size());
 
   for (const std::string_view str : input) {
-    if (std::string::npos != str.find(cmds[0])) {
+    if (std::string::npos != str.find(keywords[0])) {
       cmd = Cmd::TOGGLE;
-    } else if (std::string::npos != str.find(cmds[1])) {
+    } else if (std::string::npos != str.find(keywords[1])) {
       cmd = Cmd::ON;
-    } else if (std::string::npos != str.find(cmds[2])) {
+    } else if (std::string::npos != str.find(keywords[2])) {
       cmd = Cmd::OFF;
     } else {
       std::cerr << "Got some weird input: " << str << std::endl;
@@ -98,7 +98,7 @@ std::vector<LightInstruction> parseInput(const std::vector<std::string> &input) 
     }
 
     first_pair = str.find_first_of(digits);
-    through = str.find("through");
+    through = str.find(keywords[3]);
     second_pair = str.find_first_of(digits, through);
 
     coord1 = str.substr(first_pair, through - first_pair);
