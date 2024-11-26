@@ -75,7 +75,7 @@ std::array<U16, 2> parseCoordinates(const std::string_view str) {
 }
 
 std::vector<LightInstruction> parseInput(const std::vector<std::string> &input) {
-  const std::string keywords[4] = {"toggle", "turn on", "turn off", "through"};
+  const std::array<std::string, 4> keywords = {"toggle", "turn on", "turn off", "through"};
   const std::string digits = "0123456789";
 
   Cmd cmd;
