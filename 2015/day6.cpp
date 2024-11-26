@@ -170,9 +170,8 @@ void part1(const std::vector<std::string>& input) {
     }
   }
 
-  const std::size_t count = std::accumulate(lights.begin(), lights.end(), 0, [](std::size_t total, const ROW& row) -> std::size_t {
-    return total + row.count();
-  });
+  const auto sumRow = [](std::size_t total, const ROW& row) -> std::size_t { return total + row.count(); };
+  const std::size_t count = std::accumulate(lights.begin(), lights.end(), 0, sumRow);
 
   std::cout << "(Part 1) There are " << count << " lights that are lit." << std::endl;
 }
