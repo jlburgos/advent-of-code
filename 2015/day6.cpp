@@ -113,11 +113,12 @@ std::vector<LightInstruction> parseInput(const std::vector<std::string>& input) 
 }
 
 void part1(const std::vector<std::string>& input) {
-  using ROW = std::bitset<1000>;
+  const U16 num_columns = 1000;
+  using ROW = std::bitset<num_columns>;
 
   const std::vector<LightInstruction> instructions = parseInput(input);
   std::vector<ROW> lights;
-  lights.resize(1000); // initializes 1000 columns with bit value 'false'
+  lights.resize(num_columns); // initializes 1000 columns with bit value 'false'
 
   // Create lambda that stores operation that needs to be done
   std::function<void(ROW &row, const U16 column)> op;
@@ -153,7 +154,7 @@ void part1(const std::vector<std::string>& input) {
     }
   }
 
-  const std::size_t lit = std::accumulate(lights.begin(), lights.end(), 0, [](std::size_t total, const std::bitset<1000>& row) -> std::size_t {
+  const std::size_t lit = std::accumulate(lights.begin(), lights.end(), 0, [](std::size_t total, const ROW& row) -> std::size_t {
     return total + row.count();
   });
 
