@@ -129,8 +129,6 @@ std::string_view LightInstruction::toStringCmd() const {
 template<class ROW>
 void Ops<ROW>::apply(const std::vector<LightInstruction> &instructions, std::vector<ROW> &lights) const {
   const LAMBDA *op;
-  std::array<U16, 2> xrange;
-  std::array<U16, 2> yrange;
 
   for (const LightInstruction instruction : instructions) {
     // Set lambda operation depending on the parsed command
@@ -155,12 +153,8 @@ void Ops<ROW>::apply(const std::vector<LightInstruction> &instructions, std::vec
 
     // Since we're iterating through a vector of bitsets, coordinates system is actually (y,x)
     // where "y" points to a row in the vector and "x" points to a column in the bitset.
-    xrange[0] = instruction.coordinates[0][0];
-    xrange[1] = instruction.coordinates[1][0];
-    yrange[0] = instruction.coordinates[0][1];
-    yrange[1] = instruction.coordinates[1][1];
-    for (U16 y = yrange[0]; y <= yrange[1]; ++y) {
-      for (U16 x = xrange[0]; x <= xrange[1]; ++x) {
+    for (U16 y = instruction.coordinates[0][1]; y <= instruction.coordinates[1][1]; ++y) {
+      for (U16 x = instruction.coordinates[0][0]; x <= instruction.coordinates[1][0]; ++x) {
         (*op)(lights[y], x);
       }
     }
