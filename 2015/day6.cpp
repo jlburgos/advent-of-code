@@ -121,25 +121,34 @@ void part1(const std::vector<std::string>& input) {
   lights.resize(num_columns); // initializes 1000 columns with bit value 'false'
 
   // Create lambda that stores operation that needs to be done
-  std::function<void(ROW &row, const U16 column)> op;
+  std::function<void(ROW *row, const U16 column)> op;
+
+  // Collect coordinates in convenient arrays
+  U16 xrange[2];
+  U16 yrange[2];
+
+  // Points to current row
+  ROW *row;
 
   for (const LightInstruction instruction : instructions) {
-    // Collect coordinates in convenient arrays
-    const U16 xrange[2] = {instruction.coordinates[0][0], instruction.coordinates[1][0]};
-    const U16 yrange[2] = {instruction.coordinates[0][1], instruction.coordinates[1][1]};
+    xrange[0] = instruction.coordinates[0][0];
+    xrange[1] = instruction.coordinates[1][0];
+
+    yrange[0] = instruction.coordinates[0][1];
+    yrange[1] = instruction.coordinates[1][1];
 
     // Set lambda operation depending on the parsed command
     switch(instruction.cmd) {
       case Cmd::OFF: {
-        op = [](ROW &row, const U16 column) { row.reset(column); };
+        op = [](ROW *row, const U16 column) { row->reset(column); };
         break;
       }
       case Cmd::ON: {
-        op = [](ROW &row, const U16 column) { row.set(column); };
+        op = [](ROW *row, const U16 column) { row->set(column); };
         break;
       }
       case Cmd::TOGGLE: {
-        op = [](ROW &row, const U16 column) { row.flip(column); };
+        op = [](ROW *row, const U16 column) { row->flip(column); };
         break;
       }
     };
@@ -147,7 +156,7 @@ void part1(const std::vector<std::string>& input) {
     // Since we're iterating through a vector of bitsets, coordinates system is actually (y,x)
     // where "y" points to a row in the vector and "x" points to a column in the bitset.
     for (U16 y = yrange[0]; y <= yrange[1]; ++y) {
-      ROW &row = lights[y];
+      row = &lights[y];
       for (U16 x = xrange[0]; x <= xrange[1]; ++x) {
         op(row, x);
       }
