@@ -76,6 +76,7 @@ std::vector<LightInstruction> parseInput(const std::vector<std::string>& input) 
   instructions.reserve(input.size());
 
   const std::string cmds[3] = {"toggle", "turn on", "turn off"};
+  const std::string digits = "0123456789";
 
   for (const std::string_view str : input) {
     const std::size_t toggle_cmd_loc = str.find(cmds[0]);
@@ -94,7 +95,6 @@ std::vector<LightInstruction> parseInput(const std::vector<std::string>& input) 
       exit(1);
     }
 
-    const std::string digits = "0123456789";
     const std::size_t first_pair = str.find_first_of(digits);
     const std::size_t through = str.find("through");
     const std::size_t second_pair = str.find_first_of(digits, through);
