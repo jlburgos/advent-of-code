@@ -10,9 +10,6 @@
 #include "libs/numeric-types.hpp"
 #include "libs/util.hpp"
 
-void part1(const std::vector<std::string>& input);
-void part2(const std::vector<std::string>& input);
-
 enum class Cmd {
   ON, OFF, TOGGLE
 };
@@ -41,6 +38,9 @@ struct LightInstruction {
   }
 };
 
+
+void part1(const std::vector<std::string>& input);
+void part2(const std::vector<std::string>& input);
 void printInstruction(const LightInstruction instruction);
 std::array<U16, 2> parseCoordinates(const std::string_view str);
 std::vector<LightInstruction> parseInput(const std::vector<std::string>& input);
