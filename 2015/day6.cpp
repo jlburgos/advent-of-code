@@ -139,12 +139,6 @@ void part1(const std::vector<std::string>& input) {
   std::array<U16, 2> yrange;
 
   for (const LightInstruction instruction : instructions) {
-    xrange[0] = instruction.coordinates[0][0];
-    xrange[1] = instruction.coordinates[1][0];
-
-    yrange[0] = instruction.coordinates[0][1];
-    yrange[1] = instruction.coordinates[1][1];
-
     // Set lambda operation depending on the parsed command
     switch(instruction.cmd) {
       case Cmd::OFF: {
@@ -167,6 +161,10 @@ void part1(const std::vector<std::string>& input) {
 
     // Since we're iterating through a vector of bitsets, coordinates system is actually (y,x)
     // where "y" points to a row in the vector and "x" points to a column in the bitset.
+    xrange[0] = instruction.coordinates[0][0];
+    xrange[1] = instruction.coordinates[1][0];
+    yrange[0] = instruction.coordinates[0][1];
+    yrange[1] = instruction.coordinates[1][1];
     for (U16 y = yrange[0]; y <= yrange[1]; ++y) {
       for (U16 x = xrange[0]; x <= xrange[1]; ++x) {
         (*op)(lights[y], x);
