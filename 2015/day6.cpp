@@ -28,6 +28,17 @@ struct LightInstruction {
                     coordinates[0] = coord1;
                     coordinates[1] = coord2;
                    }
+  std::string_view toStringCmd() const {
+    switch(cmd) {
+      case Cmd::ON: return "ON";
+      case Cmd::OFF: return "OFF";
+      case Cmd::TOGGLE: return "TOGGLE";
+      default: {
+        std::cout << "Unsupported cmd encountered!" << std::endl;
+        exit(1);
+      }
+    }
+  }
 };
 
 void printInstruction(const LightInstruction instruction);
@@ -42,14 +53,8 @@ int main() {
 }
 
 void printInstruction(const LightInstruction instruction) {
-  std::string cmd;
-  switch(instruction.cmd) {
-    case Cmd::OFF:    { cmd = "OFF"; break; }
-    case Cmd::ON:     { cmd = "ON"; break; }
-    case Cmd::TOGGLE: { cmd = "TOGGLE"; break; }
-  }
   std::cout
-  << cmd
+  << instruction.toStringCmd()
   << ") <"
   << instruction.coordinates[0][0]
   << ","
@@ -84,6 +89,7 @@ std::vector<LightInstruction> parseInput(const std::vector<std::string>& input) 
     const std::size_t turn_on_cmd_loc = str.find(cmds[1]);
     const std::size_t turn_off_cmd_loc = str.find(cmds[2]);
 
+    // Only valid commands are permitted
     Cmd cmd;
     if (toggle_cmd_loc != std::string::npos) {
       cmd = Cmd::TOGGLE;
@@ -113,19 +119,24 @@ std::vector<LightInstruction> parseInput(const std::vector<std::string>& input) 
 }
 
 void part1(const std::vector<std::string>& input) {
+  // Settings some configurations
   const U16 num_columns = 1000;
   using ROW = std::bitset<num_columns>;
+  using LAMBDA = std::function<void(ROW &row, const U16 column)>;
 
   const std::vector<LightInstruction> instructions = parseInput(input);
   std::vector<ROW> lights;
   lights.resize(num_columns); // initializes 1000 columns with bit value 'false'
 
-  // Create lambda that stores operation that needs to be done
-  std::function<void(ROW &row, const U16 column)> op;
+  // Create lambdas that store the operations that need to be done
+  const LAMBDA *op;
+  const LAMBDA ON_OP     = [](ROW &row, const U16 column) { row.set(column); };
+  const LAMBDA OFF_OP    = [](ROW &row, const U16 column) { row.reset(column); };
+  const LAMBDA TOGGLE_OP = [](ROW &row, const U16 column) { row.flip(column); };
 
   // Collect coordinates in convenient arrays
-  U16 xrange[2];
-  U16 yrange[2];
+  std::array<U16, 2> xrange;
+  std::array<U16, 2> yrange;
 
   for (const LightInstruction instruction : instructions) {
     xrange[0] = instruction.coordinates[0][0];
@@ -137,16 +148,20 @@ void part1(const std::vector<std::string>& input) {
     // Set lambda operation depending on the parsed command
     switch(instruction.cmd) {
       case Cmd::OFF: {
-        op = [](ROW &row, const U16 column) { row.reset(column); };
+        op = &OFF_OP;
         break;
       }
       case Cmd::ON: {
-        op = [](ROW &row, const U16 column) { row.set(column); };
+        op = &ON_OP;
         break;
       }
       case Cmd::TOGGLE: {
-        op = [](ROW &row, const U16 column) { row.flip(column); };
+        op = &TOGGLE_OP;
         break;
+      }
+      default: {
+        std::cerr << "Need to implement support for cmd: " << instruction.toStringCmd() << std::endl;
+        exit(1);
       }
     };
 
@@ -154,16 +169,16 @@ void part1(const std::vector<std::string>& input) {
     // where "y" points to a row in the vector and "x" points to a column in the bitset.
     for (U16 y = yrange[0]; y <= yrange[1]; ++y) {
       for (U16 x = xrange[0]; x <= xrange[1]; ++x) {
-        op(lights[y], x);
+        (*op)(lights[y], x);
       }
     }
   }
 
-  const std::size_t lit = std::accumulate(lights.begin(), lights.end(), 0, [](std::size_t total, const ROW& row) -> std::size_t {
+  const std::size_t count = std::accumulate(lights.begin(), lights.end(), 0, [](std::size_t total, const ROW& row) -> std::size_t {
     return total + row.count();
   });
 
-  std::cout << "(Part 1) There are " << lit << " lights that are lit." << std::endl;
+  std::cout << "(Part 1) There are " << count << " lights that are lit." << std::endl;
 }
 
 void part2(const std::vector<std::string>& input) {
