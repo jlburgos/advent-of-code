@@ -78,36 +78,34 @@ std::array<U16, 2> parseCoordinates(const std::string_view str) {
 }
 
 std::vector<LightInstruction> parseInput(const std::vector<std::string>& input) {
-  std::vector<LightInstruction> instructions;
-  instructions.reserve(input.size());
-
   const std::string cmds[3] = {"toggle", "turn on", "turn off"};
   const std::string digits = "0123456789";
 
-  for (const std::string_view str : input) {
-    const std::size_t toggle_cmd_loc = str.find(cmds[0]);
-    const std::size_t turn_on_cmd_loc = str.find(cmds[1]);
-    const std::size_t turn_off_cmd_loc = str.find(cmds[2]);
+  Cmd cmd;
+  std::size_t first_pair, through, second_pair;
+  std::string_view coord1, coord2;
 
-    // Only valid commands are permitted
-    Cmd cmd;
-    if (toggle_cmd_loc != std::string::npos) {
+  std::vector<LightInstruction> instructions;
+  instructions.reserve(input.size());
+
+  for (const std::string_view str : input) {
+    if (std::string::npos != str.find(cmds[0])) {
       cmd = Cmd::TOGGLE;
-    } else if (turn_on_cmd_loc != std::string::npos) {
+    } else if (std::string::npos != str.find(cmds[1])) {
       cmd = Cmd::ON;
-    } else if (turn_off_cmd_loc != std::string::npos) {
+    } else if (std::string::npos != str.find(cmds[2])) {
       cmd = Cmd::OFF;
     } else {
       std::cerr << "Got some weird input: " << str << std::endl;
       exit(1);
     }
 
-    const std::size_t first_pair = str.find_first_of(digits);
-    const std::size_t through = str.find("through");
-    const std::size_t second_pair = str.find_first_of(digits, through);
+    first_pair = str.find_first_of(digits);
+    through = str.find("through");
+    second_pair = str.find_first_of(digits, through);
 
-    const std::string_view coord1 = str.substr(first_pair, through - first_pair);
-    const std::string_view coord2 = str.substr(second_pair);
+    coord1 = str.substr(first_pair, through - first_pair);
+    coord2 = str.substr(second_pair);
 
     instructions.emplace_back(cmd, parseCoordinates(coord1), parseCoordinates(coord2));
 
