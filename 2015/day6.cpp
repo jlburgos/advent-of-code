@@ -69,8 +69,8 @@ std::array<U16, 2> parseCoordinates(const std::string_view str) {
   const std::size_t comma_loc = str.find(',');
   std::string_view n1 = str.substr(0, comma_loc);
   std::string_view n2 = str.substr(comma_loc + 1);
-  coordinates[0] = static_cast<U16>(strtoul(n1.data(), nullptr, 10));
-  coordinates[1] = static_cast<U16>(strtoul(n2.data(), nullptr, 10));
+  coordinates[0] = static_cast<U16>(std::strtoul(n1.data(), nullptr, 10));
+  coordinates[1] = static_cast<U16>(std::strtoul(n2.data(), nullptr, 10));
   return coordinates;
 }
 
@@ -94,7 +94,7 @@ std::vector<LightInstruction> parseInput(const std::vector<std::string> &input) 
       cmd = Cmd::OFF;
     } else {
       std::cerr << "Got some weird input: " << str << std::endl;
-      exit(1);
+      std::exit(1);
     }
 
     first_pair = str.find_first_of(digits);
@@ -121,7 +121,7 @@ std::string_view LightInstruction::toStringCmd() const {
     case Cmd::TOGGLE: return "TOGGLE";
     default: {
       std::cout << "Unsupported cmd encountered!" << std::endl;
-      exit(1);
+      std::exit(1);
     }
   }
 }
@@ -149,7 +149,7 @@ void Ops<ROW>::apply(const std::vector<LightInstruction> &instructions, std::vec
       }
       default: {
         std::cerr << "Need to implement support for cmd: " << instruction.toStringCmd() << std::endl;
-        exit(1);
+        std::exit(1);
       }
     };
 
