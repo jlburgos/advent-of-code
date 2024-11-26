@@ -1,6 +1,7 @@
 #include <algorithm>
 #include <array>
 #include <bitset>
+#include <functional>
 #include <iostream>
 #include <numeric>
 #include <sstream>
@@ -112,29 +113,42 @@ std::vector<LightInstruction> parseInput(const std::vector<std::string>& input) 
 }
 
 void part1(const std::vector<std::string>& input) {
+  using ROW = std::bitset<1000>;
+
   const std::vector<LightInstruction> instructions = parseInput(input);
-  std::vector<std::bitset<1000>> lights;
-  lights.resize(1000); // initializes 1000 rows with bit value 'false'
+  std::vector<ROW> lights;
+  lights.resize(1000); // initializes 1000 columns with bit value 'false'
+
+  // Create lambda that stores operation that needs to be done
+  std::function<void(ROW &row, const U16 column)> op;
 
   for (const LightInstruction instruction : instructions) {
+    // Collect coordinates in convenient arrays
     const U16 xrange[2] = {instruction.coordinates[0][0], instruction.coordinates[1][0]};
     const U16 yrange[2] = {instruction.coordinates[0][1], instruction.coordinates[1][1]};
-    for (U16 x = xrange[0]; x <= xrange[1]; ++x) {
-      for (U16 y = yrange[0]; y <= yrange[1]; ++y) {
-        switch(instruction.cmd) {
-          case Cmd::OFF: {
-            lights[y].reset(x);
-            break;
-          }
-          case Cmd::ON: {
-            lights[y].set(x);
-            break;
-          }
-          case Cmd::TOGGLE: {
-            lights[y].flip(x);
-            break;
-          }
-        }
+
+    // Set lambda operation depending on the parsed command
+    switch(instruction.cmd) {
+      case Cmd::OFF: {
+        op = [](ROW &row, const U16 column) { row.reset(column); };
+        break;
+      }
+      case Cmd::ON: {
+        op = [](ROW &row, const U16 column) { row.set(column); };
+        break;
+      }
+      case Cmd::TOGGLE: {
+        op = [](ROW &row, const U16 column) { row.flip(column); };
+        break;
+      }
+    };
+
+    // Since we're iterating through a vector of bitsets, coordinates system is actually (y,x)
+    // where "y" points to a row in the vector and "x" points to a column in the bitset.
+    for (U16 y = yrange[0]; y <= yrange[1]; ++y) {
+      ROW &row = lights[y];
+      for (U16 x = xrange[0]; x <= xrange[1]; ++x) {
+        op(row, x);
       }
     }
   }
