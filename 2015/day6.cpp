@@ -66,18 +66,18 @@ void printInstruction(const LightInstruction instruction) {
 }
 
 std::array<U16, 2> parseCoordinates(const std::string_view str) {
-  std::array<U16, 2> coordinates;
   const std::size_t comma_loc = str.find(',');
-  std::string_view n1 = str.substr(0, comma_loc);
-  std::string_view n2 = str.substr(comma_loc + 1);
-  coordinates[0] = static_cast<U16>(std::strtoul(n1.data(), nullptr, 10));
-  coordinates[1] = static_cast<U16>(std::strtoul(n2.data(), nullptr, 10));
-  return coordinates;
+  const std::string_view n1 = str.substr(0, comma_loc);
+  const std::string_view n2 = str.substr(comma_loc + 1);
+  return {
+    static_cast<U16>(std::strtoul(n1.data(), nullptr, 10)),
+    static_cast<U16>(std::strtoul(n2.data(), nullptr, 10))
+  };
 }
 
 std::vector<LightInstruction> parseInput(const std::vector<std::string> &input) {
-  const std::array<std::string, 4> keywords = {"toggle", "turn on", "turn off", "through"};
-  const std::string digits = "0123456789";
+  constexpr std::array<std::string_view, 4> keywords = {"toggle", "turn on", "turn off", "through"};
+  constexpr std::string_view digits = "0123456789";
 
   Cmd cmd;
   std::size_t first_pair, through, second_pair;
@@ -164,7 +164,7 @@ void Ops<ROW>::apply(const std::vector<LightInstruction> &instructions, std::vec
 
 void part1(const std::vector<std::string> &input) {
   // Settings some configurations
-  const U16 num_columns = 1000;
+  constexpr U16 num_columns = 1000;
   using ROW = std::bitset<num_columns>;
 
   const std::vector<LightInstruction> instructions = parseInput(input);
@@ -186,7 +186,7 @@ void part1(const std::vector<std::string> &input) {
 
 void part2(const std::vector<std::string> &input) {
   // Settings some configurations
-  const U16 num_columns = 1000;
+  constexpr U16 num_columns = 1000;
   using ROW = std::array<U16, num_columns>;
 
   const std::vector<LightInstruction> instructions = parseInput(input);
