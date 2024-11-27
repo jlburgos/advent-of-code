@@ -17,7 +17,7 @@ enum class Cmd {
 struct LightInstruction {
   Cmd cmd;
   std::array<std::array<U16, 2>, 2> coordinates;
-  LightInstruction(const Cmd _cmd, const std::array<U16, 2> coord1, const std::array<U16, 2> coord2) {
+  LightInstruction(const Cmd _cmd, const std::array<U16, 2> &coord1, const std::array<U16, 2> &coord2) {
     cmd = _cmd;
     coordinates[0] = coord1;
     coordinates[1] = coord2;
@@ -113,7 +113,6 @@ std::vector<LightInstruction> parseInput(const std::vector<std::string> &input) 
 
   return instructions;
 }
-
 
 std::string_view LightInstruction::toStringCmd() const {
   switch(cmd) {
