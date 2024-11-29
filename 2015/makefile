@@ -7,10 +7,25 @@ ifeq ($(DEBUG), true)
 	FLAGS=-Wall -Werror -pedantic -std=c++20 -g -O0
 endif
 
+## Additional compilation flags for includes and libs
+INCS=-I/usr/include
+LIBS=-L/usr/lib
+
+OS:=$(shell uname)
+ifeq ($(OS), Darwin)  # macOS
+	OPENSSL_PREFIX = $(shell brew --prefix openssl 2>/dev/null)
+	ifneq ($(OPENSSL_PREFIX),)
+		INCS+=-I$(OPENSSL_PREFIX)/include
+		LIBS+=-L$(OPENSSL_PREFIX)/lib
+	endif
+endif
+
+## Linker stuff
+LIB_FLAGS=
 ## If cryptography libs are needed.
 ## Example: `CRYPTO=true make dayX`
 ifeq ($(CRYPTO), true)
-	CRYPTO_FLAGS=-lssl -lcrypto
+	LIB_FLAGS+=-lssl -lcrypto
 endif
 
 
@@ -37,4 +52,4 @@ clean:
 	@echo "----------------------------------------------"
 	@echo "Compiling and attempting run of '$(@).exe' ..."
 	@echo "----------------------------------------------"
-	g++ $(FLAGS) $(<) libs/util.cpp -o $(@).exe $(CRYPTO_FLAGS) && ./$(@).exe
+	g++ $(FLAGS) $(<) libs/util.cpp $(INCS) $(LIBS) -o $(@).exe $(LIB_FLAGS) && ./$(@).exe
