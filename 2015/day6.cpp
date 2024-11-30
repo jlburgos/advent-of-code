@@ -18,11 +18,12 @@ enum class Cmd {
 
 struct LightInstruction {
   Cmd cmd;
-  std::array<std::array<U16, 2>, 2> coordinates;
-  LightInstruction(const Cmd _cmd, const std::array<U16, 2> &coord1, const std::array<U16, 2> &coord2) {
+  std::array<U16, 2> coord1;
+  std::array<U16, 2> coord2;
+  LightInstruction(const Cmd _cmd, const std::array<U16, 2> &_coord1, const std::array<U16, 2> &_coord2) {
     cmd = _cmd;
-    coordinates[0] = coord1;
-    coordinates[1] = coord2;
+    coord1 = _coord1;
+    coord2 = _coord2;
   }
   std::string_view toStringCmd() const;
 };
@@ -45,7 +46,7 @@ concept Void2ArgsFunction = requires(LAMBDA lambda, Arg1 arg1, Arg2 arg2) {
 };
 
 template <class ROW>
-concept StlContainer = requires(ROW row) {
+concept StlContainer = requires(ROW &row) {
   typename ROW::value_type;
 };
 
@@ -55,6 +56,12 @@ concept OpsConsumerRowRef = StlContainer<ROW> && Void2ArgsFunction<LAMBDA, class
 template <class LAMBDA, class ROW>
 concept OpsConsumerRowPtr = StlContainer<ROW> && Void2ArgsFunction<LAMBDA, class ROW::value_type*, const U16>;
 
+template <class ROW, class ON_OP, class OFF_OP, class TOGGLE_OP>
+concept TotalOpsConsumerRowRef = OpsConsumerRowRef<ON_OP, std::vector<ROW>> && OpsConsumerRowRef<OFF_OP, std::vector<ROW>> && OpsConsumerRowRef<TOGGLE_OP, std::vector<ROW>>;
+
+template <class ROW, class ON_OP, class OFF_OP, class TOGGLE_OP>
+concept TotalOpsConsumerRowPtr = OpsConsumerRowPtr<ON_OP, std::vector<ROW>> && OpsConsumerRowPtr<OFF_OP, std::vector<ROW>> && OpsConsumerRowPtr<TOGGLE_OP, std::vector<ROW>>;
+
 // Updated Ops struct -- Using templates/concepts to take advantage of compiler optimizations
 template <class ROW, class ON_OP, class OFF_OP, class TOGGLE_OP>
 struct OpsV2 {
@@ -63,14 +70,12 @@ struct OpsV2 {
   const TOGGLE_OP toggle_op;
 
   // Takes instructions and applies operations on 'lights' vector elements
-  void applyLambda(const std::vector<LightInstruction> &instructions, std::vector<ROW> &lights) const
-    requires OpsConsumerRowRef<ON_OP, std::vector<ROW>> && OpsConsumerRowRef<OFF_OP, std::vector<ROW>> && OpsConsumerRowRef<TOGGLE_OP, std::vector<ROW>>;
-  void applyVisitor(const std::vector<LightInstruction> &instructions, std::vector<ROW> &lights) const
-    requires OpsConsumerRowPtr<ON_OP, std::vector<ROW>> && OpsConsumerRowPtr<OFF_OP, std::vector<ROW>> && OpsConsumerRowPtr<TOGGLE_OP, std::vector<ROW>>;
+  void applyLambda(const std::vector<LightInstruction> &instructions, std::vector<ROW> &lights) const requires TotalOpsConsumerRowRef<ROW, ON_OP, OFF_OP, TOGGLE_OP>;
+  void applyVisitor(const std::vector<LightInstruction> &instructions, std::vector<ROW> &lights) const requires TotalOpsConsumerRowPtr<ROW, ON_OP, OFF_OP, TOGGLE_OP>;
 };
 
 template <class ROW, class ON_OP, class OFF_OP, class TOGGLE_OP>
-requires OpsConsumerRowPtr<ON_OP, std::vector<ROW>> && OpsConsumerRowPtr<OFF_OP, std::vector<ROW>> && OpsConsumerRowPtr<TOGGLE_OP, std::vector<ROW>>
+requires TotalOpsConsumerRowPtr<ROW, ON_OP, OFF_OP, TOGGLE_OP>
 struct OpsV2Visitor {
   ROW *row;
   U16 column;
@@ -88,6 +93,9 @@ void part2_V2(const std::vector<std::string> &input);
 // These use the new template/concept stuff (w/ visitor)
 void part1_V3(const std::vector<std::string> &input);
 void part2_V3(const std::vector<std::string> &input);
+// These use simple C++
+void part1_V4(const std::vector<std::string> &input);
+void part2_V4(const std::vector<std::string> &input);
 
 void printInstruction(const LightInstruction instruction);
 std::array<U16, 2> parseCoordinates(const std::string_view str);
@@ -114,13 +122,21 @@ int main() {
   part2_V3(input);
   const auto end3 = std::chrono::high_resolution_clock::now();
 
+  // Running day6 solutions using templates and concepts (w/ visitor)
+  const auto start4 = std::chrono::high_resolution_clock::now();
+  part1_V4(input);
+  part2_V4(input);
+  const auto end4 = std::chrono::high_resolution_clock::now();
+
   const std::chrono::duration<F32, std::milli> elapsed1 = end1 - start1;
   const std::chrono::duration<F32, std::milli> elapsed2 = end2 - start2;
   const std::chrono::duration<F32, std::milli> elapsed3 = end3 - start3;
+  const std::chrono::duration<F32, std::milli> elapsed4 = end4 - start4;
 
-  std::cout << "Elapsed time (using std::function): " << elapsed1.count() << " ms" << std::endl;
-  std::cout << "Elapsed time (using template/concepts w/ lambda): " << elapsed2.count() << " ms" << std::endl;
-  std::cout << "Elapsed time (using template/concepts w/ visitor): " << elapsed3.count() << " ms" << std::endl;
+  std::cout << "Elapsed time (using std::function):\t\t\t" << elapsed1.count() << " ms" << std::endl;
+  std::cout << "Elapsed time (using template/concepts w/ lambda):\t" << elapsed2.count() << " ms" << std::endl;
+  std::cout << "Elapsed time (using template/concepts w/ visitor):\t" << elapsed3.count() << " ms" << std::endl;
+  std::cout << "Elapsed time (using simple C++):\t\t\t" << elapsed4.count() << " ms" << std::endl;
 
   return 0;
 }
@@ -129,13 +145,13 @@ void printInstruction(const LightInstruction instruction) {
   std::cout
   << instruction.toStringCmd()
   << ") <"
-  << instruction.coordinates[0][0]
+  << instruction.coord1[0]
   << ","
-  << instruction.coordinates[0][1]
+  << instruction.coord1[1]
   << "> :: <"
-  << instruction.coordinates[1][0]
+  << instruction.coord2[0]
   << ","
-  << instruction.coordinates[1][1]
+  << instruction.coord2[1]
   << ">"
   << std::endl;
 }
@@ -228,8 +244,8 @@ void Ops<ROW>::apply(const std::vector<LightInstruction> &instructions, std::vec
 
     // Since we're iterating through a vector, coordinates system is actually (y,x)
     // where "y" points to a row in the vector and "x" points to a column in the bitset.
-    for (U16 y = instruction.coordinates[0][1]; y <= instruction.coordinates[1][1]; ++y) {
-      for (U16 x = instruction.coordinates[0][0]; x <= instruction.coordinates[1][0]; ++x) {
+    for (U16 y = instruction.coord1[1]; y <= instruction.coord2[1]; ++y) {
+      for (U16 x = instruction.coord1[0]; x <= instruction.coord2[0]; ++x) {
         (*op)(lights[y], x);
       }
     }
@@ -238,7 +254,7 @@ void Ops<ROW>::apply(const std::vector<LightInstruction> &instructions, std::vec
 
 template <class ROW, class ON_OP, class OFF_OP, class TOGGLE_OP>
 void OpsV2<ROW, ON_OP, OFF_OP, TOGGLE_OP>::applyLambda(const std::vector<LightInstruction> &instructions, std::vector<ROW> &lights) const
-requires OpsConsumerRowRef<ON_OP, std::vector<ROW>> && OpsConsumerRowRef<OFF_OP, std::vector<ROW>> && OpsConsumerRowRef<TOGGLE_OP, std::vector<ROW>> {
+requires TotalOpsConsumerRowRef<ROW, ON_OP, OFF_OP, TOGGLE_OP> {
   std::variant<const ON_OP*, const OFF_OP*, const TOGGLE_OP*> op;
 
   for (const LightInstruction instruction : instructions) {
@@ -264,8 +280,8 @@ requires OpsConsumerRowRef<ON_OP, std::vector<ROW>> && OpsConsumerRowRef<OFF_OP,
 
     // Since we're iterating through a vector, coordinates system is actually (y,x)
     // where "y" points to a row in the vector and "x" points to a column in the bitset.
-    for (U16 y = instruction.coordinates[0][1]; y <= instruction.coordinates[1][1]; ++y) {
-      for (U16 x = instruction.coordinates[0][0]; x <= instruction.coordinates[1][0]; ++x) {
+    for (U16 y = instruction.coord1[1]; y <= instruction.coord2[1]; ++y) {
+      for (U16 x = instruction.coord1[0]; x <= instruction.coord2[0]; ++x) {
         std::visit([&](auto &&func) { (*func)(lights[y], x); }, op);
       }
     }
@@ -274,7 +290,7 @@ requires OpsConsumerRowRef<ON_OP, std::vector<ROW>> && OpsConsumerRowRef<OFF_OP,
 
 template <class ROW, class ON_OP, class OFF_OP, class TOGGLE_OP>
 void OpsV2<ROW, ON_OP, OFF_OP, TOGGLE_OP>::applyVisitor(const std::vector<LightInstruction> &instructions, std::vector<ROW> &lights) const
-requires OpsConsumerRowPtr<ON_OP, std::vector<ROW>> && OpsConsumerRowPtr<OFF_OP, std::vector<ROW>> && OpsConsumerRowPtr<TOGGLE_OP, std::vector<ROW>> {
+requires TotalOpsConsumerRowPtr<ROW, ON_OP, OFF_OP, TOGGLE_OP> {
   OpsV2Visitor<ROW, ON_OP, OFF_OP, TOGGLE_OP> visitor;
   std::variant<const ON_OP*, const OFF_OP*, const TOGGLE_OP*> op;
 
@@ -301,9 +317,9 @@ requires OpsConsumerRowPtr<ON_OP, std::vector<ROW>> && OpsConsumerRowPtr<OFF_OP,
 
     // Since we're iterating through a vector, coordinates system is actually (y,x)
     // where "y" points to a row in the vector and "x" points to a column in the bitset.
-    for (U16 y = instruction.coordinates[0][1]; y <= instruction.coordinates[1][1]; ++y) {
+    for (U16 y = instruction.coord1[1]; y <= instruction.coord2[1]; ++y) {
       visitor.row = &lights[y];
-      for (U16 x = instruction.coordinates[0][0]; x <= instruction.coordinates[1][0]; ++x) {
+      for (U16 x = instruction.coord1[0]; x <= instruction.coord2[0]; ++x) {
         visitor.column = x;
         std::visit(visitor, op);
       }
@@ -433,6 +449,89 @@ void part2_V3(const std::vector<std::string> &input) {
   const auto toggle_op = [](ROW *row, const U16 column) { (*row)[column] += 2; };
   const OpsV2<ROW, decltype(on_op), decltype(off_op), decltype(toggle_op)> ops = {on_op, off_op, toggle_op};
   ops.applyVisitor(instructions, lights);
+
+  const auto sumRow = [](std::size_t total, const ROW &row) -> std::size_t { return total + std::accumulate(row.begin(), row.end(), 0); };
+  const std::size_t brightness = std::accumulate(lights.begin(), lights.end(), 0, sumRow);
+  std::cout << "(Part 2 V3) Total brightness of lit lights is " << brightness << std::endl;
+}
+
+void part1_V4(const std::vector<std::string> &input) {
+  // Settings some configurations
+  constexpr U16 num_columns = 1000;
+  using ROW = std::bitset<num_columns>;
+
+  const std::vector<LightInstruction> instructions = parseInput(input);
+  std::vector<ROW> lights;
+  lights.resize(num_columns); // initializes 1000 rows of columns with bit value '0'
+
+  for (const LightInstruction instruction : instructions) {
+    // Since we're iterating through a vector, coordinates system is actually (y,x)
+    // where "y" points to a row in the vector and "x" points to a column in the bitset.
+    for (U16 y = instruction.coord1[1]; y <= instruction.coord2[1]; ++y) {
+      for (U16 x = instruction.coord1[0]; x <= instruction.coord2[0]; ++x) {
+        switch(instruction.cmd) {
+          case Cmd::OFF: {
+            lights[y].set(x);
+            break;
+          }
+          case Cmd::ON: {
+            lights[y].reset(x);
+            break;
+          }
+          case Cmd::TOGGLE: {
+            lights[y].flip(x);
+            break;
+          }
+          default: {
+            std::cerr << "Need to implement support for cmd: " << instruction.toStringCmd() << std::endl;
+            std::exit(1);
+          }
+        };
+      }
+    }
+  }
+
+  const auto sumRow = [](std::size_t total, const ROW &row) -> std::size_t { return total + row.count(); };
+  const std::size_t count = std::accumulate(lights.begin(), lights.end(), 0, sumRow);
+  std::cout << "(Part 1 V3) There are " << count << " lights that are lit." << std::endl;
+}
+
+void part2_V4(const std::vector<std::string> &input) {
+  // Settings some configurations
+  constexpr U16 num_columns = 1000;
+  using ROW = std::array<U16, num_columns>;
+
+  const std::vector<LightInstruction> instructions = parseInput(input);
+  std::vector<ROW> lights;
+  lights.resize(num_columns); // initializes 1000 rows of columns with integral value '0'
+
+  for (const LightInstruction instruction : instructions) {
+    // Since we're iterating through a vector, coordinates system is actually (y,x)
+    // where "y" points to a row in the vector and "x" points to a column in the bitset.
+    for (U16 y = instruction.coord1[1]; y <= instruction.coord2[1]; ++y) {
+      for (U16 x = instruction.coord1[0]; x <= instruction.coord2[0]; ++x) {
+        U16 &value = lights[y][x];
+        switch(instruction.cmd) {
+          case Cmd::OFF: {
+            value += 1;
+            break;
+          }
+          case Cmd::ON: {
+            value = (value == 0 ? 0 : value - 1);
+            break;
+          }
+          case Cmd::TOGGLE: {
+            value += 2;
+            break;
+          }
+          default: {
+            std::cerr << "Need to implement support for cmd: " << instruction.toStringCmd() << std::endl;
+            std::exit(1);
+          }
+        };
+      }
+    }
+  }
 
   const auto sumRow = [](std::size_t total, const ROW &row) -> std::size_t { return total + std::accumulate(row.begin(), row.end(), 0); };
   const std::size_t brightness = std::accumulate(lights.begin(), lights.end(), 0, sumRow);
