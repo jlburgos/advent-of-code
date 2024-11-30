@@ -44,11 +44,16 @@ concept Void2ArgsFunction = requires(LAMBDA lambda, Arg1 arg1, Arg2 arg2) {
   { lambda(arg1, arg2) } -> std::convertible_to<void>;
 };
 
-template <class LAMBDA, class ROW>
-concept OpsConsumerRowRef = Void2ArgsFunction<LAMBDA, class ROW::value_type&, const U16>;
+template <class ROW>
+concept StlContainer = requires(ROW row) {
+  typename ROW::value_type;
+};
 
 template <class LAMBDA, class ROW>
-concept OpsConsumerRowPtr = Void2ArgsFunction<LAMBDA, class ROW::value_type*, const U16>;
+concept OpsConsumerRowRef = StlContainer<ROW> && Void2ArgsFunction<LAMBDA, class ROW::value_type&, const U16>;
+
+template <class LAMBDA, class ROW>
+concept OpsConsumerRowPtr = StlContainer<ROW> && Void2ArgsFunction<LAMBDA, class ROW::value_type*, const U16>;
 
 // Updated Ops struct -- Using templates/concepts to take advantage of compiler optimizations
 template <class ROW, class ON_OP, class OFF_OP, class TOGGLE_OP>
