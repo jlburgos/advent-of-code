@@ -49,24 +49,27 @@ std::vector<std::string> Util::getMultiLineInput(const std::string_view filename
   return input;
 }
 
-#if UTIL_UNIT_TEST == true
+#if UNIT_TEST == true
+#include "numeric-types.hpp"
 int main() {
   std::cerr << "Running unit-tests ..." << std::endl;
 
-  std::vector<char> line = Util::getSingleLineInput("libs/input/util.dat");
+  std::vector<char> line = Util::getSingleLineInput("input/util.dat");
   std::string lineStr(line.begin(), line.end());
   std::cerr << "lineStr = " << lineStr << std::endl;
   assert(lineStr == "HelloWorld!!!Thereisatabhere");
 
-  std::vector<std::string> lines = Util::getMultiLineInput("libs/input/util.dat");
+  std::vector<std::string> lines = Util::getMultiLineInput("input/util.dat");
   std::cerr << "Lines size: " << lines.size() << std::endl;
-  for (unsigned int i = 0; i < lines.size(); ++i) {
+  for (U8 i = 0; i < lines.size(); ++i) {
     std::cerr << "Lines[" << i << "] = " << lines[i] << std::endl;
   }
-  assert(lines.size() == 3);
+  assert(lines.size() == 5);
   assert(lines[0] == "Hello");
   assert(lines[1] == "World");
   assert(lines[2] == "!!!");
+  assert(lines[3] == "	There is a tab here");
+  assert(lines[4] == "        ");
 
   std::cout << "Successfully completed unit-test!" << std::endl;
   return 0;
