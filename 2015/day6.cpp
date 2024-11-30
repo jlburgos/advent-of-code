@@ -471,11 +471,11 @@ void part1_V4(const std::vector<std::string> &input) {
       for (U16 x = instruction.coord1[0]; x <= instruction.coord2[0]; ++x) {
         switch(instruction.cmd) {
           case Cmd::OFF: {
-            lights[y].set(x);
+            lights[y].reset(x);
             break;
           }
           case Cmd::ON: {
-            lights[y].reset(x);
+            lights[y].set(x);
             break;
           }
           case Cmd::TOGGLE: {
@@ -513,11 +513,11 @@ void part2_V4(const std::vector<std::string> &input) {
         U16 &value = lights[y][x];
         switch(instruction.cmd) {
           case Cmd::OFF: {
-            value += 1;
+            value = (value == 0 ? 0 : value - 1);
             break;
           }
           case Cmd::ON: {
-            value = (value == 0 ? 0 : value - 1);
+            value += 1;
             break;
           }
           case Cmd::TOGGLE: {
