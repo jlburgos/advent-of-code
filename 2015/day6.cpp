@@ -108,9 +108,9 @@ int main() {
   part2_V3(input);
   const auto end3 = std::chrono::high_resolution_clock::now();
 
-  const std::chrono::duration<F64, std::milli> elapsed1 = end1 - start1;
-  const std::chrono::duration<F64, std::milli> elapsed2 = end2 - start2;
-  const std::chrono::duration<F64, std::milli> elapsed3 = end3 - start3;
+  const std::chrono::duration<F32, std::milli> elapsed1 = end1 - start1;
+  const std::chrono::duration<F32, std::milli> elapsed2 = end2 - start2;
+  const std::chrono::duration<F32, std::milli> elapsed3 = end3 - start3;
 
   std::cout << "Elapsed time (using std::function): " << elapsed1.count() << " ms" << std::endl;
   std::cout << "Elapsed time (using template/concepts w/ lambda): " << elapsed2.count() << " ms" << std::endl;
