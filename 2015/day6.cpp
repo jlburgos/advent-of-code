@@ -410,7 +410,7 @@ void part1_V3(const std::vector<std::string> &input) {
 
   const auto sumRow = [](std::size_t total, const ROW &row) -> std::size_t { return total + row.count(); };
   const std::size_t count = std::accumulate(lights.begin(), lights.end(), 0, sumRow);
-  std::cout << "(Part 1 V2) There are " << count << " lights that are lit." << std::endl;
+  std::cout << "(Part 1 V3) There are " << count << " lights that are lit." << std::endl;
 }
 
 void part2_V3(const std::vector<std::string> &input) {
@@ -431,5 +431,5 @@ void part2_V3(const std::vector<std::string> &input) {
 
   const auto sumRow = [](std::size_t total, const ROW &row) -> std::size_t { return total + std::accumulate(row.begin(), row.end(), 0); };
   const std::size_t brightness = std::accumulate(lights.begin(), lights.end(), 0, sumRow);
-  std::cout << "(Part 2 V2) Total brightness of lit lights is " << brightness << std::endl;
+  std::cout << "(Part 2 V3) Total brightness of lit lights is " << brightness << std::endl;
 }
