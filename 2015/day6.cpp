@@ -90,6 +90,7 @@ std::vector<LightInstruction> parseInput(const std::vector<std::string> &input);
 
 int main() {
   const std::vector<std::string> input = Util::getMultiLineInput("input/day6.dat");
+
   // Running day6 solutions using std::function
   const auto start1 = std::chrono::high_resolution_clock::now();
   part1(input);
