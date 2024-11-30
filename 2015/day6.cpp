@@ -468,18 +468,19 @@ void part1_V4(const std::vector<std::string> &input) {
     // Since we're iterating through a vector, coordinates system is actually (y,x)
     // where "y" points to a row in the vector and "x" points to a column in the bitset.
     for (U16 y = instruction.coord1[1]; y <= instruction.coord2[1]; ++y) {
+      std::bitset<num_columns> &row = lights[y];
       for (U16 x = instruction.coord1[0]; x <= instruction.coord2[0]; ++x) {
         switch(instruction.cmd) {
           case Cmd::OFF: {
-            lights[y].reset(x);
+            row.reset(x);
             break;
           }
           case Cmd::ON: {
-            lights[y].set(x);
+            row.set(x);
             break;
           }
           case Cmd::TOGGLE: {
-            lights[y].flip(x);
+            row.flip(x);
             break;
           }
           default: {
@@ -509,8 +510,9 @@ void part2_V4(const std::vector<std::string> &input) {
     // Since we're iterating through a vector, coordinates system is actually (y,x)
     // where "y" points to a row in the vector and "x" points to a column in the bitset.
     for (U16 y = instruction.coord1[1]; y <= instruction.coord2[1]; ++y) {
+      std::array<U16, num_columns> &row = lights[y];
       for (U16 x = instruction.coord1[0]; x <= instruction.coord2[0]; ++x) {
-        U16 &value = lights[y][x];
+        U16 &value = row[x];
         switch(instruction.cmd) {
           case Cmd::OFF: {
             value = (value == 0 ? 0 : value - 1);
