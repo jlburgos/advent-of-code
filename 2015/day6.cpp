@@ -468,7 +468,7 @@ void part1_V4(const std::vector<std::string> &input) {
     // Since we're iterating through a vector, coordinates system is actually (y,x)
     // where "y" points to a row in the vector and "x" points to a column in the bitset.
     for (U16 y = instruction.coord1[1]; y <= instruction.coord2[1]; ++y) {
-      std::bitset<num_columns> &row = lights[y];
+      ROW &row = lights[y];
       for (U16 x = instruction.coord1[0]; x <= instruction.coord2[0]; ++x) {
         switch(instruction.cmd) {
           case Cmd::OFF: {
@@ -510,7 +510,7 @@ void part2_V4(const std::vector<std::string> &input) {
     // Since we're iterating through a vector, coordinates system is actually (y,x)
     // where "y" points to a row in the vector and "x" points to a column in the bitset.
     for (U16 y = instruction.coord1[1]; y <= instruction.coord2[1]; ++y) {
-      std::array<U16, num_columns> &row = lights[y];
+      ROW &row = lights[y];
       for (U16 x = instruction.coord1[0]; x <= instruction.coord2[0]; ++x) {
         U16 &value = row[x];
         switch(instruction.cmd) {
