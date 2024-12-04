@@ -29,7 +29,7 @@ struct LightInstruction {
 };
 
 // OLD Ops struct -- Uses simple std::function to store lambdas
-template <class ROW>
+template <typename ROW>
 struct Ops {
   using LAMBDA = std::function<void(ROW &row, const U16 column)>;
   const LAMBDA on_op;
@@ -40,30 +40,30 @@ struct Ops {
   void apply(const std::vector<LightInstruction> &instructions, std::vector<ROW> &lights) const;
 };
 
-template <class LAMBDA, class Arg1, class Arg2>
+template <typename LAMBDA, typename Arg1, typename Arg2>
 concept Void2ArgsFunction = requires(LAMBDA lambda, Arg1 arg1, Arg2 arg2) {
-  { lambda(arg1, arg2) } -> std::convertible_to<void>;
+  { lambda(arg1, arg2) } -> std::same_as<void>;
 };
 
-template <class ROW>
+template <typename ROW>
 concept StlContainer = requires(ROW &row) {
   typename ROW::value_type;
 };
 
-template <class LAMBDA, class ROW>
-concept OpsConsumerRowRef = StlContainer<ROW> && Void2ArgsFunction<LAMBDA, class ROW::value_type&, const U16>;
+template <typename LAMBDA, typename ROW>
+concept OpsConsumerRowRef = StlContainer<ROW> && Void2ArgsFunction<LAMBDA, typename ROW::value_type&, const U16>;
 
-template <class LAMBDA, class ROW>
-concept OpsConsumerRowPtr = StlContainer<ROW> && Void2ArgsFunction<LAMBDA, class ROW::value_type*, const U16>;
+template <typename LAMBDA, typename ROW>
+concept OpsConsumerRowPtr = StlContainer<ROW> && Void2ArgsFunction<LAMBDA, typename ROW::value_type*, const U16>;
 
-template <class ROW, class ON_OP, class OFF_OP, class TOGGLE_OP>
+template <typename ROW, typename ON_OP, typename OFF_OP, typename TOGGLE_OP>
 concept TotalOpsConsumerRowRef = OpsConsumerRowRef<ON_OP, std::vector<ROW>> && OpsConsumerRowRef<OFF_OP, std::vector<ROW>> && OpsConsumerRowRef<TOGGLE_OP, std::vector<ROW>>;
 
-template <class ROW, class ON_OP, class OFF_OP, class TOGGLE_OP>
+template <typename ROW, typename ON_OP, typename OFF_OP, typename TOGGLE_OP>
 concept TotalOpsConsumerRowPtr = OpsConsumerRowPtr<ON_OP, std::vector<ROW>> && OpsConsumerRowPtr<OFF_OP, std::vector<ROW>> && OpsConsumerRowPtr<TOGGLE_OP, std::vector<ROW>>;
 
 // Updated Ops struct -- Using templates/concepts to take advantage of compiler optimizations
-template <class ROW, class ON_OP, class OFF_OP, class TOGGLE_OP>
+template <typename ROW, typename ON_OP, typename OFF_OP, typename TOGGLE_OP>
 struct OpsV2 {
   const ON_OP on_op;
   const OFF_OP off_op;
@@ -74,7 +74,7 @@ struct OpsV2 {
   void applyVisitor(const std::vector<LightInstruction> &instructions, std::vector<ROW> &lights) const requires TotalOpsConsumerRowPtr<ROW, ON_OP, OFF_OP, TOGGLE_OP>;
 };
 
-template <class ROW, class ON_OP, class OFF_OP, class TOGGLE_OP>
+template <typename ROW, typename ON_OP, typename OFF_OP, typename TOGGLE_OP>
 requires TotalOpsConsumerRowPtr<ROW, ON_OP, OFF_OP, TOGGLE_OP>
 struct OpsV2Visitor {
   ROW *row;
@@ -217,7 +217,7 @@ std::string_view LightInstruction::toStringCmd() const {
   }
 }
 
-template <class ROW>
+template <typename ROW>
 void Ops<ROW>::apply(const std::vector<LightInstruction> &instructions, std::vector<ROW> &lights) const {
   const LAMBDA *op;
 
@@ -252,7 +252,7 @@ void Ops<ROW>::apply(const std::vector<LightInstruction> &instructions, std::vec
   }
 }
 
-template <class ROW, class ON_OP, class OFF_OP, class TOGGLE_OP>
+template <typename ROW, typename ON_OP, typename OFF_OP, typename TOGGLE_OP>
 void OpsV2<ROW, ON_OP, OFF_OP, TOGGLE_OP>::applyLambda(const std::vector<LightInstruction> &instructions, std::vector<ROW> &lights) const
 requires TotalOpsConsumerRowRef<ROW, ON_OP, OFF_OP, TOGGLE_OP> {
   std::variant<const ON_OP*, const OFF_OP*, const TOGGLE_OP*> op;
@@ -288,7 +288,7 @@ requires TotalOpsConsumerRowRef<ROW, ON_OP, OFF_OP, TOGGLE_OP> {
   }
 }
 
-template <class ROW, class ON_OP, class OFF_OP, class TOGGLE_OP>
+template <typename ROW, typename ON_OP, typename OFF_OP, typename TOGGLE_OP>
 void OpsV2<ROW, ON_OP, OFF_OP, TOGGLE_OP>::applyVisitor(const std::vector<LightInstruction> &instructions, std::vector<ROW> &lights) const
 requires TotalOpsConsumerRowPtr<ROW, ON_OP, OFF_OP, TOGGLE_OP> {
   OpsV2Visitor<ROW, ON_OP, OFF_OP, TOGGLE_OP> visitor;
@@ -494,7 +494,7 @@ void part1_V4(const std::vector<std::string> &input) {
 
   const auto sumRow = [](std::size_t total, const ROW &row) -> std::size_t { return total + row.count(); };
   const std::size_t count = std::accumulate(lights.begin(), lights.end(), 0, sumRow);
-  std::cout << "(Part 1 V3) There are " << count << " lights that are lit." << std::endl;
+  std::cout << "(Part 1 V4) There are " << count << " lights that are lit." << std::endl;
 }
 
 void part2_V4(const std::vector<std::string> &input) {
@@ -537,5 +537,5 @@ void part2_V4(const std::vector<std::string> &input) {
 
   const auto sumRow = [](std::size_t total, const ROW &row) -> std::size_t { return total + std::accumulate(row.begin(), row.end(), 0); };
   const std::size_t brightness = std::accumulate(lights.begin(), lights.end(), 0, sumRow);
-  std::cout << "(Part 2 V3) Total brightness of lit lights is " << brightness << std::endl;
+  std::cout << "(Part 2 V4) Total brightness of lit lights is " << brightness << std::endl;
 }
