@@ -4,7 +4,7 @@
 ## Example for debugging do: `DEBUG=true make dayX`
 FLAGS=-Wall -Werror -pedantic -std=c++20 -O3
 ifeq ($(DEBUG), true)
-	FLAGS=-Wall -Werror -pedantic -std=c++20 -g -O0
+	FLAGS=-Wall -Werror -pedantic -std=c++20 -g -O0 -fconcepts-diagnostics-depth=2
 endif
 
 ## Additional compilation flags for includes and libs
