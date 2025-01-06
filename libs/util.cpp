@@ -12,9 +12,15 @@ static bool isEmptyChar(const char ch) {
   return std::any_of(illegalChars.cbegin(), illegalChars.cend(), contains_input);
 }
 
+// TODO :: investigate this simpler way to reading input:
+// auto str=file | std::views::istream | std::ranges::to<std::string>();
+//
+// TODO :: investigate streaming file contents line-by-line as another option
+
 static void reloadStdinStream(const std::string_view filename) {
   std::cin.clear();
-  std::fseek(stdin, 0, SEEK_SET);
+  std::rewind(stdin);
+  //std::fseek(stdin, 0, SEEK_SET);
   assert(freopen(filename.data(), "r", stdin) != nullptr);
 }
 
