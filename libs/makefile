@@ -2,9 +2,9 @@
 
 ## Use aggressive optimizations by default.
 ## Example for debugging do: `DEBUG=true make dayX`
-FLAGS=-Wall -Werror -pedantic -std=c++20 -O3
+FLAGS=-Wall -Werror -pedantic -std=c++23 -O3
 ifeq ($(DEBUG), true)
-	FLAGS=-Wall -Werror -pedantic -std=c++20 -g -O0
+	FLAGS=-Wall -Werror -pedantic -std=c++23 -g -O0
 endif
 
 ## Additional compilation flags for includes and libs
