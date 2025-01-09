@@ -47,4 +47,4 @@ clean:
 	@echo "----------------------------------------------"
 	@echo "Compiling and attempting run of '$(@).exe' ..."
 	@echo "----------------------------------------------"
-	$(CXX) $(FLAGS) $(INCS) -o $(@).exe $(<) $(LDFLAGS) && ./$(@).exe
+	$(CXX) $(FLAGS) $(INCS) -o $(@).exe $(<) $(LDFLAGS) && LD_LIBRARY_PATH=../libs ./$(@).exe

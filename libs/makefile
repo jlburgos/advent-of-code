@@ -19,7 +19,11 @@ libaocutil.so:
 	@echo "----------------------------------------------"
 	@echo "Compiling shared library '$(@)' ..."
 	@echo "----------------------------------------------"
+ifeq ($(OS), Darwin) # MacOS
 	g++ $(FLAGS) util.cpp $(INCS) $(LIBS) -Wl,-install_name,../libs/$(@) -shared -fPIC -o $(@) $(LIB_FLAGS)
+else
+	g++ $(FLAGS) util.cpp $(INCS) $(LIBS) -shared -fPIC -o $(@) $(LIB_FLAGS)
+endif
 
 ## Generic rule to handle cpp file targets.
 ## Example: `make dayX`
