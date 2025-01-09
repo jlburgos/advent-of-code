@@ -6,11 +6,10 @@
 #include <iostream>
 #include <fstream>
 
-static bool isEmptyInput(const char ch) {
+static bool isEmptyChar(const char ch) {
   const std::array<char, 4> illegalChars = {' ', '\n', '\r', '\t'};
-  return std::any_of(illegalChars.begin(), illegalChars.end(), [ch](const char illegalCharsChar) {
-    return ch == illegalCharsChar;
-  });
+  const auto contains_input = [ch](const char ch2) { return ch == ch2; };
+  return std::any_of(illegalChars.cbegin(), illegalChars.cend(), contains_input);
 }
 
 static void reloadStdinStream(const std::string_view filename) {
@@ -28,7 +27,7 @@ std::vector<char> Util::getSingleLineInput(const std::string_view filename) {
   std::vector<char> input;
   char ch;
   while (std::cin.get(ch)) {
-    if (!isEmptyInput(ch)) {
+    if (!isEmptyChar(ch)) {
       input.push_back(ch);
     }
   }
@@ -49,13 +48,15 @@ std::vector<std::string> Util::getMultiLineInput(const std::string_view filename
   return input;
 }
 
+int Util::testUtil() { return 42; }
+
 #if UNIT_TEST == true
 #include "numeric-types.hpp"
 int main() {
   std::cerr << "Running unit-tests ..." << std::endl;
 
   std::vector<char> line = Util::getSingleLineInput("input/util.dat");
-  std::string lineStr(line.begin(), line.end());
+  std::string lineStr(line.cbegin(), line.cend());
   std::cerr << "lineStr = " << lineStr << std::endl;
   assert(lineStr == "HelloWorld!!!Thereisatabhere");
 
@@ -70,6 +71,8 @@ int main() {
   assert(lines[2] == "!!!");
   assert(lines[3] == "	There is a tab here");
   assert(lines[4] == "        ");
+
+  std::cout << Util::quoted(Util::testUtil()) << std::endl;
 
   std::cout << "Successfully completed unit-test!" << std::endl;
   return 0;

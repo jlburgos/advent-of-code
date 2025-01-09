@@ -13,7 +13,13 @@ LIBS=-L/usr/lib
 
 ## Since I'm adding the ".exe" extension, cleaning up is simple.
 clean:
-	@rm -f *.exe
+	@rm -f *.exe *.so
+
+libaocutil.so:
+	@echo "----------------------------------------------"
+	@echo "Compiling shared library '$(@)' ..."
+	@echo "----------------------------------------------"
+	g++ $(FLAGS) util.cpp $(INCS) $(LIBS) -Wl,-install_name,../libs/$(@) -shared -fPIC -o $(@) $(LIB_FLAGS)
 
 ## Generic rule to handle cpp file targets.
 ## Example: `make dayX`
@@ -21,4 +27,5 @@ clean:
 	@echo "----------------------------------------------"
 	@echo "Compiling and attempting run of '$(@).exe' ..."
 	@echo "----------------------------------------------"
-	g++ -DUNIT_TEST=true $(FLAGS) $(<) $(INCS) $(LIBS) -o $(@).exe $(LIB_FLAGS) && ./$(@).exe
+	g++ -DUNIT_TEST=true $(FLAGS) $(<) $(INCS) $(LIBS) -o $(@).exe $(LIB_FLAGS) && ./$(@).exe && rm $(@).exe
+
