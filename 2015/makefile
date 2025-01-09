@@ -6,7 +6,10 @@ STD=-std=c++23
 ## Example for debugging do: `DEBUG=true make dayX`
 FLAGS=-Wall -Werror -pedantic $(STD) -O3
 ifeq ($(DEBUG), true)
-	FLAGS=-Wall -Werror -pedantic $(STD) -g -O0 -fconcepts-diagnostics-depth=2
+	FLAGS=-Wall -Werror -pedantic $(STD) -g -O0
+	ifeq ($(OS), Darwin) # MacOS
+	  FLAGS+=-fconcepts-diagnostics-depth=2
+	endif
 endif
 
 ## Additional compilation/linker flags
