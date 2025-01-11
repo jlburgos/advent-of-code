@@ -1,6 +1,13 @@
 ## Simple makefile used to compile my targets.
+
+## Compiler settings
 CXX=clang++
 STD=-std=c++23
+
+## Detect the OS if not windows
+ifneq ($(OS),Windows_NT)
+	OS:=$(shell uname -s)
+endif
 
 ## Use aggressive optimizations by default.
 ## Example for debugging do: `DEBUG=true make dayX`
