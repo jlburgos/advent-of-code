@@ -5,14 +5,13 @@
 #include <string>
 #include <vector>
 
-#include "libs/numeric-types.hpp"
-#include "libs/util.hpp"
+#include <libs/util.hpp>
 
 void part1(const std::vector<std::string> &input);
 void part2(const std::vector<std::string> &input);
 
 int main() {
-  const std::vector<std::string> input = Util::getMultiLineInput("input/day2.dat");
+  const std::vector<std::string> input = aoc::getMultiLineInput("input/day2.dat");
   part1(input);
   part2(input);
   return 0;

@@ -9,8 +9,7 @@
 #include <string>
 #include <variant>
 
-#include "libs/numeric-types.hpp"
-#include "libs/util.hpp"
+#include <libs/util.hpp>
 
 enum class Cmd {
   ON, OFF, TOGGLE
@@ -102,7 +101,7 @@ std::array<U16, 2> parseCoordinates(const std::string_view str);
 std::vector<LightInstruction> parseInput(const std::vector<std::string> &input);
 
 int main() {
-  const std::vector<std::string> input = Util::getMultiLineInput("input/day6.dat");
+  const std::vector<std::string> input = aoc::getMultiLineInput("input/day6.dat");
 
   // Running day6 solutions using std::function
   const auto start1 = std::chrono::high_resolution_clock::now();

@@ -7,8 +7,7 @@
 #include <unordered_map>
 #include <unordered_set>
 
-#include "libs/numeric-types.hpp"
-#include "libs/util.hpp"
+#include <libs/util.hpp>
 
 void part1(const std::vector<char>& input);
 void part2(const std::vector<char>& input);
@@ -18,7 +17,7 @@ void part2_map(const std::vector<char>& input);
 void part2_set(const std::vector<char>& input);
 
 int main() {
-  const std::vector<char> input = Util::getSingleLineInput("input/day3.dat");
+  const std::vector<char> input = aoc::getSingleLineInput("input/day3.dat");
   part1(input);
   part2(input);
   part2_map(input);

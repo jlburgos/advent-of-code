@@ -1,5 +1,6 @@
 #include <algorithm>
 #include <iostream>
+#include <memory>
 #include <sstream>
 #include <string>
 
@@ -7,8 +8,9 @@
 // evp.h - high-level cryptographic functions
 #include <openssl/evp.h>
 
-#include "libs/numeric-types.hpp"
-#include "libs/util.hpp"
+#include <libs/util.hpp>
+
+// TODO :: Define custom destructor for the EVP_MD_CTX pointer.
 
 void part1(const std::string_view key);
 void part2(const std::string_view key);
@@ -19,7 +21,7 @@ std::string toMd5(const std::string_view key, EVP_MD_CTX *context);
 void compute_md5_suffix(const std::string_view key, const U8 prefix_zeroes);
 
 int main() {
-  const std::vector<char> input = Util::getSingleLineInput("input/day4.dat");
+  const std::vector<char> input = aoc::getSingleLineInput("input/day4.dat");
   std::string key(input.begin(), input.end());
   part1(key);
   part2(key);
@@ -67,10 +69,10 @@ std::string toHex(const UCHAR ch) {
 }
 
 std::string toMd5(const std::string_view key, EVP_MD_CTX *context) {
-  static UCHAR digest[EVP_MAX_MD_SIZE];
+  UCHAR digest[EVP_MAX_MD_SIZE];
   U32 length;
 
-  if (1 != EVP_DigestInit_ex(context, EVP_md5(), nullptr)) {
+  if (1 != EVP_DigestInit(context, EVP_md5())) {
     std::cerr << "Failed to initialize the context for type == EVP_MD" << std::endl;
     exit(1);
   }
@@ -78,7 +80,7 @@ std::string toMd5(const std::string_view key, EVP_MD_CTX *context) {
     std::cerr << "Failed to provide key '" << key << "' whose digest needs to be calculated" << std::endl;
     exit(1);
   }
-  if (1 != EVP_DigestFinal_ex(context, digest, &length)) {
+  if (1 != EVP_DigestFinal(context, digest, &length)) {
     std::cerr << "Failed to calculate the digest for key '" << key << "'" << std::endl;
     exit(1);
   }

@@ -1,8 +1,11 @@
 ## Simple makefile used to compile my targets.
 
-## Compiler settings
+## Common Vars
 CXX=clang++
 STD=-std=c++23
+CUSTOM_LIBS=../libs
+INCS=-I../
+LINKER_FLAGS=-L$(CUSTOM_LIBS) -laocutil
 
 ## Detect the OS if not windows
 ifneq ($(OS),Windows_NT)
@@ -19,30 +22,25 @@ ifeq ($(DEBUG), true)
 	endif
 endif
 
-## Additional compilation flags for includes and libs
-INCS=-I/usr/include -I../
-LIBS=-L/usr/lib
-
-## Since I'm adding the ".exe" extension, cleaning up is simple.
-clean:
-	@rm -f *.exe *.so
-
 libaocutil.so:
 	@echo "----------------------------------------------"
 	@echo "Compiling shared library '$(@)' ..."
 	@echo "----------------------------------------------"
 ifeq ($(OS), Darwin) # MacOS
-	$(CXX) $(FLAGS) util.cpp $(INCS) $(LIBS) -Wl,-install_name,../libs/$(@) -shared -fPIC -o $(@) $(LIB_FLAGS)
+	$(CXX) $(FLAGS) *.cpp $(INCS) $(LIBS) -Wl,-install_name,../libs/$(@) -shared -fPIC -o $(@) $(LINKER_FLAGS)
 else
-	@echo "OS: $(OS)"
-	$(CXX) $(FLAGS) util.cpp $(INCS) $(LIBS) -shared -fPIC -o $(@) $(LIB_FLAGS)
+	$(CXX) $(FLAGS) *.cpp $(INCS) $(LIBS) -shared -fPIC -o $(@) $(LINKER_FLAGS)
 endif
+
+## Since I'm adding the ".exe" extension, cleaning up is simple.
+clean:
+	@rm -f *.exe *.so
 
 ## Generic rule to handle cpp file targets.
 ## Example: `make dayX`
-%: %.cpp
+PHONY += %.cpp
+%: %.cpp libaocutil.so
 	@echo "----------------------------------------------"
 	@echo "Compiling and attempting run of '$(@).exe' ..."
 	@echo "----------------------------------------------"
-	$(CXX) -DUNIT_TEST=true $(FLAGS) $(<) $(INCS) $(LIBS) -o $(@).exe $(LIB_FLAGS) && ./$(@).exe && rm $(@).exe
-
+	$(CXX) $(FLAGS) $(<) $(INCS) $(LIBS) -o $(@).exe $(LINKER_FLAGS) && LD_LIBRARY_PATH=$(CUSTOM_LIBS) DEBUG=$(DEBUG) ./$(@).exe && rm $(@).exe

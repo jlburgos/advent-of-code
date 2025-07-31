@@ -1,9 +1,11 @@
 #include <algorithm>
 #include <array>
 #include <bitset>
+#include <cerrno>
 #include <iostream>
 #include <type_traits>
 #include <numeric>
+#include <ranges>
 #include <sstream>
 #include <string>
 #include <variant>
@@ -11,8 +13,7 @@
 #include <utility>
 #include <unordered_map>
 
-#include "libs/numeric-types.hpp"
-#include "libs/util.hpp"
+#include <libs/util.hpp>
 
 /////////////////////////////////////////////////////////////
 // Set up a blueprint containing requirements and constraints
@@ -28,8 +29,8 @@ concept WireConcept = requires(WIRE &wire) {
 template <typename T>
 concept IterableConcept = requires(T &t) {
   typename T::value_type;
-  { t.begin() } -> std::same_as<decltype(std::begin(std::declval<T&>()))>;
-  { t.end()   } -> std::same_as<decltype(std::end(std::declval<T&>()))>;
+  { t.cbegin() } -> std::same_as<decltype(std::cbegin(std::declval<T&>()))>;
+  { t.cend()   } -> std::same_as<decltype(std::cend(std::declval<T&>()))>;
   { t.size()  } -> std::same_as<std::size_t>;
 };
 
@@ -58,7 +59,7 @@ concept ShiftFunction = requires(const FUNCTION &func, const INPUT &input, const
 ////////////////////////////////////////////////////////////////
 
 struct Wire {
-  bool set = false;
+  bool set;
   U16 signal;
   const std::string label;
 };
@@ -92,18 +93,28 @@ struct GateFunctions {
     }
   }
 
+  // TODO :: Try turning these into normal static methods!
+  static constexpr U16 AND(const WiresConcept auto &input) {
+    return std::accumulate(
+        input.cbegin(),
+        input.cend(),
+        static_cast<U16>(~0), // Note: All bits set to '1' for cumulative AND operation
+        [](const U16 result, const Wire *wire) -> U16 { return result & wire->signal; });
+  }
+  /* // TODO :: Checking if this is even necessary ...
   static constexpr auto AND = [](const WiresConcept auto &input) -> U16 {
     return std::accumulate(
-        input.begin(),
-        input.end(),
+        input.cbegin(),
+        input.cend(),
         static_cast<U16>(~0), // Note: All bits set to '1' for cumulative AND operation
         [](const U16 result, const Wire *wire) -> U16 { return result & wire->signal; });
   };
+  */
 
   static constexpr auto OR = [](const WiresConcept auto &input) -> U16 {
     return std::accumulate(
-        input.begin(),
-        input.end(),
+        input.cbegin(),
+        input.cend(),
         static_cast<U16>(0), // Note: All bits set to '0' for cumulative OR operation
         [](const U16 result, const Wire *wire) -> U16 {
           std::cerr << "Is wire null? " << (wire == nullptr ? "YES" : "NO") << std::endl;
@@ -143,7 +154,7 @@ struct Gate {
   virtual std::string_view type() const noexcept = 0;
   virtual U16 activate() const noexcept = 0;
 
-  void check_input() {
+  void check_input() const {
     std::cerr << "Checking input ... " << std::endl;
     check_input(type(), input);
   }
@@ -190,8 +201,8 @@ private:
   static bool is_all_input_set(const WiresConcept auto &input) noexcept {
     std::cerr << "is_all_input_set(WiresConcept)" << std::endl;
     return std::all_of(
-        input.begin(),
-        input.end(),
+        input.cbegin(),
+        input.cend(),
         [](const WireConcept auto *wire) -> bool { 
           if (wire == nullptr) { std::cerr << "Wire is NULL" << std::endl; return false; }
           return wire->set;
@@ -199,23 +210,88 @@ private:
   }
 };
 
-using ANDGateSpecialization = Gate<decltype(GateFunctions::AND), Wires>;
+// TODO :: Create two-step specializations on signal gates and shift gates!
+//         This will allow us to implement the activate() twice instead of for each gate type!
+/*
+using ANDGateSpecialization = Gate<U16 (*)(const Wires &input), Wires>;
 using ORGateSpecialization  = Gate<decltype(GateFunctions::OR),  Wires>;
 using NOTGateSpecialization = Gate<decltype(GateFunctions::NOT), Wire>;
 using LSHIFTGateSpecialization  = Gate<decltype(GateFunctions::LSHIFT),  Wire>;
 using RSHIFTGateSpecialization  = Gate<decltype(GateFunctions::RSHIFT),  Wire>;
 using PASSTHROUGHGateSpecialization = Gate<decltype(GateFunctions::PASS_THROUGH), Wire>;
+*/
 
-struct ANDGate : public ANDGateSpecialization {
-  ANDGate(Wire &out, Wires &in) : ANDGateSpecialization(GateFunctions::AND, out, in) {}
-  virtual std::string_view type() const noexcept override {
-    return GateFunctions::toString(GateTypes::AND);
-  }
+using SingleInputFunction = U16 (*)(const Wire &input);
+using MultiInputFunction = U16 (*)(const Wires &input);
+using ShiftInputFunction = U16 (*)(const Wire &input, const U16 shift);
+
+struct SingleInputGate : public Gate<SingleInputFunction, Wire> {
+  SingleInputGate(const SingleInputFunction &f, Wire &out, Wire &in) : Gate<SingleInputFunction, Wire>(f, out, in) {}
   virtual U16 activate() const noexcept override {
     return function(input);
   }
 };
 
+struct MultiInputGate : public Gate<MultiInputFunction, Wires> {
+  MultiInputGate(const MultiInputFunction &f, Wire &out, Wires &in) : Gate<MultiInputFunction, Wires>(f, out, in) {}
+  virtual U16 activate() const noexcept override {
+    return function(input);
+  }
+};
+
+struct ShiftInputGate : public Gate<ShiftInputFunction, Wire> {
+  const U16 shift;
+  ShiftInputGate(const ShiftInputFunction &f, const U16 bitshift, Wire &out, Wire &in) : Gate<ShiftInputFunction, Wire>(f, out, in), shift(bitshift) {}
+  virtual U16 activate() const noexcept override {
+    return function(input, shift);
+  }
+};
+
+
+struct ANDGate : public MultiInputGate {
+  ANDGate(Wire &out, Wires &in) : MultiInputGate(GateFunctions::AND, out, in) {}
+  virtual std::string_view type() const noexcept override {
+    return GateFunctions::toString(GateTypes::AND);
+  }
+};
+
+struct ORGate : public MultiInputGate {
+  ORGate(Wire &out, Wires &in) : MultiInputGate(GateFunctions::OR, out, in) {}
+  virtual std::string_view type() const noexcept override {
+    return GateFunctions::toString(GateTypes::OR);
+  }
+};
+
+struct NOTGate : public SingleInputGate {
+  NOTGate(Wire &out, Wire &in) : SingleInputGate(GateFunctions::NOT, out, in) {}
+  virtual std::string_view type() const noexcept override {
+    return GateFunctions::toString(GateTypes::NOT);
+  }
+};
+
+struct LSHIFTGate : public ShiftInputGate {
+  LSHIFTGate(const U16 shift, Wire &out, Wire &in) : ShiftInputGate(GateFunctions::LSHIFT, shift, out, in) {}
+  virtual std::string_view type() const noexcept override {
+    return GateFunctions::toString(GateTypes::LSHIFT);
+  }
+};
+
+struct RSHIFTGate : public ShiftInputGate {
+  const U16 shift;
+  RSHIFTGate(const U16 shift, Wire &out, Wire &in) : ShiftInputGate(GateFunctions::RSHIFT, shift, out, in) {}
+  virtual std::string_view type() const noexcept override {
+    return GateFunctions::toString(GateTypes::RSHIFT);
+  }
+};
+
+struct PASSTHROUGHGate : public SingleInputGate {
+  PASSTHROUGHGate(Wire &out, Wire &in) : SingleInputGate(GateFunctions::PASS_THROUGH, out, in) {}
+  virtual std::string_view type() const noexcept override {
+    return GateFunctions::toString(GateTypes::PASSTHROUGH);
+  }
+};
+
+/*
 struct ORGate : public ORGateSpecialization {
   ORGate(Wire &out, Wires &in) : ORGateSpecialization(GateFunctions::OR, out, in) {}
   virtual std::string_view type() const noexcept override {
@@ -238,7 +314,7 @@ struct NOTGate : public NOTGateSpecialization {
 
 struct LSHIFTGate : public LSHIFTGateSpecialization {
   const U16 shift;
-  LSHIFTGate(const U16 svalue, Wire &out, Wire &in) : LSHIFTGateSpecialization(GateFunctions::LSHIFT, out, in), shift(svalue) {}
+  LSHIFTGate(const U16 shift, Wire &out, Wire &in) : LSHIFTGateSpecialization(GateFunctions::LSHIFT, out, in), shift(shift) {}
   virtual std::string_view type() const noexcept override {
     return GateFunctions::toString(GateTypes::LSHIFT);
   }
@@ -249,7 +325,7 @@ struct LSHIFTGate : public LSHIFTGateSpecialization {
 
 struct RSHIFTGate : public RSHIFTGateSpecialization {
   const U16 shift;
-  RSHIFTGate(const U16 svalue, Wire &out, Wire &in) : RSHIFTGateSpecialization(GateFunctions::RSHIFT, out, in), shift(svalue) {}
+  RSHIFTGate(const U16 shift, Wire &out, Wire &in) : RSHIFTGateSpecialization(GateFunctions::RSHIFT, out, in), shift(shift) {}
   virtual std::string_view type() const noexcept override {
     return GateFunctions::toString(GateTypes::RSHIFT);
   }
@@ -267,25 +343,50 @@ struct PASSTHROUGHGate : public PASSTHROUGHGateSpecialization {
     return function(input);
   }
 };
+*/
 
 /////////////////////////////////////////////////////////////
 // Implement solution ...
 /////////////////////////////////////////////////////////////
 
 void parseCircuit(const std::vector<std::string> &input);
+std::vector<std::vector<std::string>> tokenize_input(const std::vector<std::string> &input);
 
 void part1(const std::vector<std::string> &input);
 void part2(const std::vector<std::string> &input);
 
 int main() {
-  const std::vector<std::string> input = Util::getMultiLineInput("input/day7.dat");
+  const std::vector<std::string> input = aoc::getMultiLineInput("input/day7.dat");
   part1(input);
-  //part2(input);
+  part2(input);
   return 0;
 }
 
+// TODO :: Change these to string_views to avoid duplication!
+std::vector<std::vector<std::string>> tokenize_input(const std::vector<std::string> &input) {
+  const auto to_string_views = [](const std::string &s) -> std::string_view { return std::string_view(s); };
+  const auto enumerated_string_views = input | std::views::transform(to_string_views) | std::views::enumerate;
+
+  // Collect all the wire definitions
+  std::vector<std::vector<std::string>> tokenized_input(input.size());
+  std::vector<std::string> *tokens;
+  for (const auto [index, line] : enumerated_string_views) {
+    std::istringstream iss(line.data());
+    tokens = &tokenized_input[index];
+    tokens->reserve(5); // longest line will have 5 tokens
+    std::string token;
+    while (iss >> token) {
+      tokens->push_back(token);
+    }
+    tokens->shrink_to_fit();
+  }
+  tokens = nullptr;
+
+  return tokenized_input;
+}
+
 void part1(const std::vector<std::string> &input) {
-  std::vector<std::variant<ANDGate, ORGate, LSHIFTGate, RSHIFTGate, NOTGate>> gates;
+  std::vector<std::variant<ANDGate, ORGate, NOTGate, LSHIFTGate, RSHIFTGate, PASSTHROUGHGate>> gates;
   std::unordered_map<std::string, Wire> wires;
   std::vector<Wires> wire_groupings; // Used as a cache
 
@@ -309,7 +410,7 @@ void part1(const std::vector<std::string> &input) {
     if (tokens.size() == 3) {
       // TODO :: NEED TO ADD SUPPORT FOR WIRE -> WIRE CONNECTION!!!
       // IDEA: Create a "WIREGate" that sets output to the input!
-      const U16 signal = static_cast<U16>(std::strtol(tokens[0].data(), nullptr, 10));
+      const U16 signal = static_cast<U16>(aoc::to_long(tokens[0].data()));
       wires.erase(tokens[2]); // Force overwrite since these wires already have a signal!
       wires.emplace(tokens[2], Wire{true, signal, tokens[2]});
     }
@@ -336,9 +437,11 @@ void part1(const std::vector<std::string> &input) {
   for (const std::string_view line : input) {
     std::istringstream iss(line.data());
     std::vector<std::string> tokens;
-    std::string token;
-    while (iss >> token) {
-      tokens.push_back(token);
+    {
+      std::string token;
+      while (iss >> token) {
+        tokens.push_back(token);
+      }
     }
     // Len = 4 // NOT GATE
     // Len = 5 // AND,OR,LSHIFT,RSHIFT GATE
@@ -365,13 +468,13 @@ void part1(const std::vector<std::string> &input) {
       }
       else if (type == "LSHIFT") {
         Wire &in = wires.at(tokens[0]);
-        const U16 shift = static_cast<U16>(std::strtol(tokens[2].data(), nullptr, 10));
+        const U16 shift = static_cast<U16>(aoc::to_long(tokens[2].data()));
         gates.emplace_back(LSHIFTGate(shift, out, in));
         std::cerr << "Creating LSHIFT gate with input wire " << tokens[0] << " and shift " << shift << std::endl;
       }
       else if (type == "RSHIFT") {
         Wire &in = wires.at(tokens[0]);
-        const U16 shift = static_cast<U16>(std::strtol(tokens[2].data(), nullptr, 10));
+        const U16 shift = static_cast<U16>(aoc::to_long(tokens[2].data()));
         gates.emplace_back(RSHIFTGate(shift, out, in));
         std::cerr << "Creating LSHIFT gate with input wire " << tokens[0] << " and shift " << shift << std::endl;
       }
@@ -384,7 +487,7 @@ void part1(const std::vector<std::string> &input) {
       // TODO :: Need to clean up later!
       std::cerr << "DIRECT SIGNAL LINE: " << line << std::endl;
       ++directSignalCount;
-      bool is_pass_through = std::any_of(tokens[0].begin(), tokens[0].end(), [](const char ch) -> bool { return !std::isalpha(ch); });
+      bool is_pass_through = std::any_of(tokens[0].cbegin(), tokens[0].cend(), [](const char ch) -> bool { return !std::isalpha(ch); });
       if (is_pass_through) {
         Wire &in = wires.at(tokens[0]);
         Wire &out = wires.at(tokens[2]);
@@ -414,7 +517,7 @@ void part1(const std::vector<std::string> &input) {
       }, gate);
     }
 
-    const U64 count = std::count_if(status.begin(), status.end(), [](const bool flag) -> bool { return flag;});
+    const U64 count = std::count_if(status.cbegin(), status.cend(), [](const bool flag) -> bool { return flag;});
     std::cerr << "Number of gates passing the check: " << count << std::endl;
     if (old_count == count) {
       std::cerr << "Invalid circuit detected!" << std::endl;
@@ -422,7 +525,7 @@ void part1(const std::vector<std::string> &input) {
     }
     old_count = count;
     std::cerr << "\n\n";
-  } while (!std::all_of(status.begin(), status.end(), [](const bool flag) { return flag;}));
+  } while (!std::all_of(status.cbegin(), status.cend(), [](const bool flag) { return flag;}));
 
   std::vector<std::string_view> keys;
   keys.reserve(wires.size());

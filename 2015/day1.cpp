@@ -1,13 +1,12 @@
 #include <iostream>
 
-#include "libs/numeric-types.hpp"
-#include "libs/util.hpp"
+#include <libs/util.hpp>
 
 void part1(const std::vector<char>& input);
 void part2(const std::vector<char>& input);
 
 int main() {
-  const std::vector<char> input = Util::getSingleLineInput("input/day1.dat");
+  const std::vector<char> input = aoc::getLineInput<char>("input/day1.dat");
   part1(input);
   part2(input);
   return 0;

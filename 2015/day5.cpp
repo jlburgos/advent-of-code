@@ -4,8 +4,7 @@
 #include <sstream>
 #include <string>
 
-#include "libs/numeric-types.hpp"
-#include "libs/util.hpp"
+#include <libs/util.hpp>
 
 void part1(const std::vector<std::string>& input);
 void part2(const std::vector<std::string>& input);
@@ -18,7 +17,7 @@ bool containsPairsNotOverlapping(const std::string_view str);
 bool containsPairWithInBetween(const std::string_view str);
 
 int main() {
-  const std::vector<std::string> input = Util::getMultiLineInput("input/day5.dat");
+  const std::vector<std::string> input = aoc::getMultiLineInput("input/day5.dat");
   part1(input);
   part2(input);
   return 0;
