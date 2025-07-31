@@ -121,7 +121,7 @@ int main() {
   part2_V3(input);
   const auto end3 = std::chrono::high_resolution_clock::now();
 
-  // Running day6 solutions using templates and concepts (w/ visitor)
+  // Running day6 solutions using basic C++
   const auto start4 = std::chrono::high_resolution_clock::now();
   part1_V4(input);
   part2_V4(input);
